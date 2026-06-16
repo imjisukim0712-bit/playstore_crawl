@@ -1,0 +1,605 @@
+{
+  "timestamp": 1781575365981,
+  "data": [
+    {
+      "rank": 1,
+      "name": "Google One",
+      "publisher": "Google LLC",
+      "category": "일반"
+    },
+    {
+      "rank": 2,
+      "name": "ChatGPT",
+      "publisher": "OpenAI",
+      "category": "일반"
+    },
+    {
+      "rank": 3,
+      "name": "네이버 웹툰 - Naver Webtoon",
+      "publisher": "NAVER WEBTOON",
+      "category": "일반"
+    },
+    {
+      "rank": 4,
+      "name": "카카오톡 KakaoTalk",
+      "publisher": "Kakao Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 5,
+      "name": "TVING",
+      "publisher": "Tving Co Ltd",
+      "category": "일반"
+    },
+    {
+      "rank": 6,
+      "name": "TikTok 틱톡 - 숏폼 영상, 크리에이터, 수익창출",
+      "publisher": "TikTok Pte. Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 7,
+      "name": "카카오페이지 KakaoPage",
+      "publisher": "Kakao Entertainment Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 8,
+      "name": "메이플스토리 월드",
+      "publisher": "Toben Studio Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 9,
+      "name": "TikTok Lite 포인트 & 쿠폰 & 리워드",
+      "publisher": "TikTok Pte. Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 10,
+      "name": "SERIES - 네이버 시리즈",
+      "publisher": "NAVER WEBTOON",
+      "category": "일반"
+    },
+    {
+      "rank": 11,
+      "name": "Claude by Anthropic",
+      "publisher": "Anthropic PBC",
+      "category": "일반"
+    },
+    {
+      "rank": 12,
+      "name": "멜론(Melon)",
+      "publisher": "Kakao Entertainment  Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 13,
+      "name": "크랙 - 즉흥 서사 플레이, AI 채팅",
+      "publisher": "wrtn",
+      "category": "일반"
+    },
+    {
+      "rank": 14,
+      "name": "NetShort - 인기 드라마 및 TV 프로그램",
+      "publisher": "NETSTORY PTE. LTD.",
+      "category": "일반"
+    },
+    {
+      "rank": 15,
+      "name": "DramaBox - 미니시리즈 스트리밍 플레이어",
+      "publisher": "STORYMATRIX",
+      "category": "일반"
+    },
+    {
+      "rank": 16,
+      "name": "DramaWave -인기 단편/한일 드라마, 역전극!",
+      "publisher": "SKYWORK AI PTE.LTD.",
+      "category": "일반"
+    },
+    {
+      "rank": 17,
+      "name": "리디 - 웹툰, 만화, 웹소설, 전자책 모두 여기에!",
+      "publisher": "RIDI Corporation",
+      "category": "일반"
+    },
+    {
+      "rank": 18,
+      "name": "쿠팡플레이",
+      "publisher": "Coupang Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 19,
+      "name": "CapCut: 사진 및 동영상 에디터",
+      "publisher": "Bytedance Pte. Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 20,
+      "name": "듀오링고(Duolingo): 언어 학습",
+      "publisher": "Duolingo",
+      "category": "일반"
+    },
+    {
+      "rank": 21,
+      "name": "Wavve (웨이브)",
+      "publisher": "콘텐츠웨이브",
+      "category": "일반"
+    },
+    {
+      "rank": 22,
+      "name": "Disney+",
+      "publisher": "Disney",
+      "category": "일반"
+    },
+    {
+      "rank": 23,
+      "name": "GoodNovel(굿노벨) - 웹소설",
+      "publisher": "GoodNovel",
+      "category": "일반"
+    },
+    {
+      "rank": 24,
+      "name": "치지직 – CHZZK",
+      "publisher": "NAVER Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 25,
+      "name": "제타(zeta) - 상상이 현실이 되는 AI 채팅",
+      "publisher": "Scatter Lab, Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 26,
+      "name": "라프텔",
+      "publisher": "Laftel",
+      "category": "일반"
+    },
+    {
+      "rank": 27,
+      "name": "문피아 - 웹소설의 유토피아",
+      "publisher": "Munpia, Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 28,
+      "name": "Grok AI",
+      "publisher": "xAI",
+      "category": "일반"
+    },
+    {
+      "rank": 29,
+      "name": "멜팅 - AI 캐릭터 채팅, 호감도 시스템",
+      "publisher": "Watnee Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 30,
+      "name": "Vigloo 비글루 - 숏드라마",
+      "publisher": "SpoonLabs",
+      "category": "일반"
+    },
+    {
+      "rank": 31,
+      "name": "지니뮤직 - genie",
+      "publisher": "(주)케이티지니뮤직",
+      "category": "일반"
+    },
+    {
+      "rank": 32,
+      "name": "Tinder 틴더 - 친구를 발견하는 새로운 방법",
+      "publisher": "Tinder LLC",
+      "category": "일반"
+    },
+    {
+      "rank": 33,
+      "name": "위피 - 가까운 동네친구, 설레는 소개팅",
+      "publisher": "NRISE",
+      "category": "일반"
+    },
+    {
+      "rank": 34,
+      "name": "네이버 MYBOX",
+      "publisher": "NAVER Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 35,
+      "name": "밀리의 서재 - 독서와 무제한 친해지리",
+      "publisher": "(주)kt 밀리의 서재",
+      "category": "일반"
+    },
+    {
+      "rank": 36,
+      "name": "글램 : 탈퇴하세요, 함께 - 소개팅 데이트 만남",
+      "publisher": "Cupist Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 37,
+      "name": "WePlay - 파티게임",
+      "publisher": "WEJOY Pte. Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 38,
+      "name": "Discord - 대화, 플레이, 어울리기",
+      "publisher": "Discord Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 39,
+      "name": "Instagram",
+      "publisher": "Instagram",
+      "category": "일반"
+    },
+    {
+      "rank": 40,
+      "name": "스픽 Speak: AI 영어회화, 스피킹, 발음, 단어",
+      "publisher": "Speakeasy Labs",
+      "category": "일반"
+    },
+    {
+      "rank": 41,
+      "name": "Spotify: 음악과 팟캐스트",
+      "publisher": "Spotify AB",
+      "category": "일반"
+    },
+    {
+      "rank": 42,
+      "name": "왓챠",
+      "publisher": "Watcha Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 43,
+      "name": "Microsoft OneDrive",
+      "publisher": "Microsoft Corporation",
+      "category": "일반"
+    },
+    {
+      "rank": 44,
+      "name": "카카오웹툰 – KAKAO WEBTOON",
+      "publisher": "Kakao Entertainment Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 45,
+      "name": "말해보카: 단어, 문법, 스피킹, 영어 회화",
+      "publisher": "EpopSoft Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 46,
+      "name": "NordVPN: 안전한 웹과 온라인 보안을 위한 VPN",
+      "publisher": "Nord Security",
+      "category": "일반"
+    },
+    {
+      "rank": 47,
+      "name": "젠스파크 AI 워크스페이스",
+      "publisher": "Genspark",
+      "category": "일반"
+    },
+    {
+      "rank": 48,
+      "name": "FLO – 플로",
+      "publisher": "Dreamus Company",
+      "category": "일반"
+    },
+    {
+      "rank": 49,
+      "name": "SNOW 스노우 - AI 프로필 & 고화질 카메라",
+      "publisher": "SNOW Corporation",
+      "category": "일반"
+    },
+    {
+      "rank": 50,
+      "name": "텔레그램 공식 앱 Telegram",
+      "publisher": "Telegram FZ-LLC",
+      "category": "일반"
+    },
+    {
+      "rank": 51,
+      "name": "X",
+      "publisher": "X Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 52,
+      "name": "숨고 - 이사, 청소, 취미, 인테리어 전문가 찾기",
+      "publisher": "Brave Mobile",
+      "category": "일반"
+    },
+    {
+      "rank": 53,
+      "name": "MoboReels - 인기 숏드라마, 역전극 시리즈",
+      "publisher": "MOBOREADER TECHNOLOGY USA CO LTD",
+      "category": "일반"
+    },
+    {
+      "rank": 54,
+      "name": "캠톡 - 캠톡커와 팬을 위한 공간",
+      "publisher": "mateconvergence",
+      "category": "일반"
+    },
+    {
+      "rank": 55,
+      "name": "골드스푼 : 검증기반 하이엔드 데이팅앱",
+      "publisher": "Triple comma Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 56,
+      "name": "SOOP",
+      "publisher": "SOOP Co., Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 57,
+      "name": "위프 - 원하는 전개 그대로, AI채팅 (로맨스&BL)",
+      "publisher": "벙커키즈",
+      "category": "일반"
+    },
+    {
+      "rank": 58,
+      "name": "Gemmy AI: 채팅 & 어시스턴트",
+      "publisher": "Jetkite",
+      "category": "일반"
+    },
+    {
+      "rank": 59,
+      "name": "StardustTV - 숏폼&영화",
+      "publisher": "StardustTV",
+      "category": "일반"
+    },
+    {
+      "rank": 60,
+      "name": "Suno 수노 - AI 음악 & 노래",
+      "publisher": "Suno, Inc",
+      "category": "일반"
+    },
+    {
+      "rank": 61,
+      "name": "ReelShort - 드라마 및 TV 스트리밍",
+      "publisher": "NewLeaf Publishing",
+      "category": "일반"
+    },
+    {
+      "rank": 62,
+      "name": "정오의데이트 소개팅 – 동네친구 데이트 만남",
+      "publisher": "Mozzet Co.Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 63,
+      "name": "JoyRead-장편 소설 & 단편 소설 감상",
+      "publisher": "JoyRead",
+      "category": "일반"
+    },
+    {
+      "rank": 64,
+      "name": "아이쉐어링: GPS 위치공유, 자녀위치추적 어플",
+      "publisher": "iSharingSoft, inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 65,
+      "name": "팬더티비",
+      "publisher": "DOUBLEMEDIA",
+      "category": "일반"
+    },
+    {
+      "rank": 66,
+      "name": "Manus AI",
+      "publisher": "BUTTERFLY EFFECT PTE. LTD.",
+      "category": "일반"
+    },
+    {
+      "rank": 67,
+      "name": "SPOTV NOW(스포티비 나우)",
+      "publisher": "(주) 스포티비",
+      "category": "일반"
+    },
+    {
+      "rank": 68,
+      "name": "Perplexity (퍼플렉시티) 무엇이든 물어보세요",
+      "publisher": "PerplexityAI",
+      "category": "일반"
+    },
+    {
+      "rank": 69,
+      "name": "앙팅 즐팅 채팅 톡톡 랜덤채팅",
+      "publisher": "KkongTalk",
+      "category": "일반"
+    },
+    {
+      "rank": 70,
+      "name": "라이키 - 크리에이터와 팬이 만나는 최적의 공간",
+      "publisher": "TPC Internet",
+      "category": "일반"
+    },
+    {
+      "rank": 71,
+      "name": "FlexTV - 숏폼 드라마, 영화 & TV 시리즈",
+      "publisher": "YUDER PTE.LTD.",
+      "category": "일반"
+    },
+    {
+      "rank": 72,
+      "name": "KLING AI: AI 이미지 및 동영상 메이커",
+      "publisher": "KLING AI",
+      "category": "일반"
+    },
+    {
+      "rank": 73,
+      "name": "미스터블루 - 웹툰, 만화, 소설앱",
+      "publisher": "Mr. Blue Corporation",
+      "category": "일반"
+    },
+    {
+      "rank": 74,
+      "name": "bubble with STARS",
+      "publisher": "Dear U Co., Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 75,
+      "name": "FlickReels: 숏폼드라마,도라마코리아 & 시리즈",
+      "publisher": "FARSUNPTE.LTD.",
+      "category": "일반"
+    },
+    {
+      "rank": 76,
+      "name": "포스타입 POSTYPE",
+      "publisher": "Postype, Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 77,
+      "name": "HelloTalk 헬로톡 - 언어공부 외국친구찾기",
+      "publisher": "HelloTalk Learn Languages App",
+      "category": "일반"
+    },
+    {
+      "rank": 78,
+      "name": "TP-Link Tapo",
+      "publisher": "TP-LINK SYSTEMS INC.",
+      "category": "일반"
+    },
+    {
+      "rank": 79,
+      "name": "독서의 모든 것 - 윌라",
+      "publisher": "(주)인플루엔셜",
+      "category": "일반"
+    },
+    {
+      "rank": 80,
+      "name": "교보eBook",
+      "publisher": "KYOBO BOOK CENTRE",
+      "category": "일반"
+    },
+    {
+      "rank": 81,
+      "name": "심쿵 - 내 근처 동네친구, 소개팅",
+      "publisher": "Colondee",
+      "category": "일반"
+    },
+    {
+      "rank": 82,
+      "name": "예스24 도서 서점",
+      "publisher": "YES24",
+      "category": "일반"
+    },
+    {
+      "rank": 83,
+      "name": "LIVE스코어 - 라이브스코어, 월드컵, 축구, 야구",
+      "publisher": "PSYNET",
+      "category": "일반"
+    },
+    {
+      "rank": 84,
+      "name": "베이글챗 : AI 캐릭터 채팅 & 스토리",
+      "publisher": "Konrev Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 85,
+      "name": "iQIYI - 아시아 드라마, 애니메이션, 예능",
+      "publisher": "iQIYI",
+      "category": "일반"
+    },
+    {
+      "rank": 86,
+      "name": "Plaud: AI Note Taker",
+      "publisher": "PLAUD LLC",
+      "category": "일반"
+    },
+    {
+      "rank": 87,
+      "name": "블릿 - 블라인드가 만든 소개팅 & 커뮤니티",
+      "publisher": "Team Blend",
+      "category": "일반"
+    },
+    {
+      "rank": 88,
+      "name": "윌유: 인연 큐레이터 - 소개팅 연애 데이트",
+      "publisher": "LIFEOASIS - Connecting with Glam People",
+      "category": "일반"
+    },
+    {
+      "rank": 89,
+      "name": "WeTV: 초특급 인기 영화·드라마·예능 라이브러리!",
+      "publisher": "Image Future",
+      "category": "일반"
+    },
+    {
+      "rank": 90,
+      "name": "스푼 : 라이브 & 팟노블",
+      "publisher": "SpoonLabs",
+      "category": "일반"
+    },
+    {
+      "rank": 91,
+      "name": "TVING - 안드로이드TV",
+      "publisher": "Tving Co Ltd",
+      "category": "일반"
+    },
+    {
+      "rank": 92,
+      "name": "포스텔러 - 신년운세, 사주, 타로, 궁합, 점성술",
+      "publisher": "Team UN7QI3",
+      "category": "일반"
+    },
+    {
+      "rank": 93,
+      "name": "아마시아 - 나와 가까운 인연부터 외국인까지",
+      "publisher": "ReignTalk",
+      "category": "일반"
+    },
+    {
+      "rank": 94,
+      "name": "Apple Music",
+      "publisher": "Apple",
+      "category": "일반"
+    },
+    {
+      "rank": 95,
+      "name": "벅스 - Bugs",
+      "publisher": "NHN Bugs Corp.",
+      "category": "일반"
+    },
+    {
+      "rank": 96,
+      "name": "포켓트윈",
+      "publisher": "cocone ONE corporation",
+      "category": "일반"
+    },
+    {
+      "rank": 97,
+      "name": "iDrama: 영화 & TV 스트리밍",
+      "publisher": "GOODDRAMA",
+      "category": "일반"
+    },
+    {
+      "rank": 98,
+      "name": "비고 라이브 BIGO LIVE - 글로벌 라이브 방송",
+      "publisher": "Bigo Technology Pte. Ltd.",
+      "category": "일반"
+    },
+    {
+      "rank": 99,
+      "name": "케밋 동네친구 소개팅 - MBTI부터 스킨십 궁합까지",
+      "publisher": "Enfpy Inc.",
+      "category": "일반"
+    },
+    {
+      "rank": 100,
+      "name": "도킷 – 채팅, 일본친구, 일본여자, 외국친구",
+      "publisher": "Reigntalk DatingGroup",
+      "category": "일반"
+    }
+  ]
+}

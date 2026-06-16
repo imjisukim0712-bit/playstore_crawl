@@ -1,32 +1,14 @@
-name: Play Store Daily Scrape
+name: Play Store Games Scrape
 
 on:
   schedule:
-    - cron: '0 0,6,18 * * *'
-    - cron: '0 12 * * *'
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  scrape-json:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm install
-        working-directory: ./server
-      - run: node index.js --ci
-        working-directory: ./server
-      - run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add server/output/
-          git diff --quiet --staged || (git commit -m "Auto scrape JSON $(date '+%Y-%m-%d %H:%M')" && git pull --rebase --autostash && git push)
-
   scrape-games-excel:
     runs-on: ubuntu-latest
     steps:

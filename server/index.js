@@ -19,6 +19,15 @@ function timestamp() {
   ].join('');
 }
 
+function dateDir() {
+  const now = new Date();
+  return [
+    String(now.getFullYear()).slice(2),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('');
+}
+
 async function scrapeRankings(collection, category) {
   const params = { collection, num: 100, country: 'kr', lang: 'ko' };
   if (category) params.category = category;
@@ -35,8 +44,10 @@ async function scrapeRankings(collection, category) {
 async function saveJSON(collection, category, typeLabel) {
   console.log(`\nScraping ${typeLabel}...`);
   const rankings = await scrapeRankings(collection, category);
+  const subDir = path.join(outputDir, dateDir());
+  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir);
   const fileName = `${timestamp()}.json`;
-  const filePath = path.join(outputDir, fileName);
+  const filePath = path.join(subDir, fileName);
   fs.writeFileSync(filePath, JSON.stringify({ timestamp: Date.now(), data: rankings }, null, 2), 'utf-8');
   console.log(`Saved: ${fileName} (${rankings.length} items)`);
   return filePath;
@@ -50,8 +61,10 @@ async function saveExcel(collection, category, typeLabel) {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '매출순위');
   ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 16 }];
+  const subDir = path.join(outputDir, dateDir());
+  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir);
   const fileName = `${timestamp()}.xlsx`;
-  const filePath = path.join(outputDir, fileName);
+  const filePath = path.join(subDir, fileName);
   XLSX.writeFile(wb, filePath);
   console.log(`Saved: ${fileName} (${rankings.length} items)`);
   return filePath;
