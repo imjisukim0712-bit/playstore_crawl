@@ -1,0 +1,27 @@
+name: Play Store Games Scrape
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-games-excel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+        working-directory: ./server
+      - run: node index.js --ci-games-excel
+        working-directory: ./server
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add server/output/
+          git diff --quiet --staged || (git commit -m "Auto scrape games Excel $(date '+%Y-%m-%d %H:%M')" && git pull --rebase --autostash && git push)
