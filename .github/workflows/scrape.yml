@@ -2,7 +2,7 @@ name: Play Store Games Scrape
 
 on:
   schedule:
-    - cron: '0 0,3,6,9,12,15,18,21 * * *'
+    - cron: '40 3 * * *'
   workflow_dispatch:
 
 permissions:
