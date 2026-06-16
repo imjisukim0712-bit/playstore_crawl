@@ -1,0 +1,3 @@
+1. start-proxy-server.bat 실행
+2. 원하는 항목 입력
+3. 추출된 데이터는 output 파일에 저장
