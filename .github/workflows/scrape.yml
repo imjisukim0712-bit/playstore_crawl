@@ -18,6 +18,9 @@ jobs:
           node-version: 20
       - run: npm install
         working-directory: ./server
+      - name: Patch google-play-scraper bug
+        run: sed -i 's/searchArray === null || searchArray.length === 0/searchArray === null || searchArray === undefined || searchArray.length === 0/' node_modules/google-play-scraper/lib/utils/mappingHelpers.js
+        working-directory: ./server
       - run: node index.js --ci-games-excel
         working-directory: ./server
       - run: |
