@@ -29,7 +29,7 @@ function dateDir() {
 }
 
 async function scrapeRankings(collection, category) {
-  const params = { collection, num: 100, country: 'kr', lang: 'ko' };
+  const params = { collection, num: 100, country: 'kr', lang: 'ko', fullDetail: true };
   if (category) params.category = category;
   const apps = await gplay.list(params);
   const label = category ? '게임' : '일반';
@@ -38,6 +38,7 @@ async function scrapeRankings(collection, category) {
     name: app.title,
     publisher: app.developer || app.developerId || 'Unknown',
     category: label,
+    subCategory: app.genre || '',
   }));
 }
 
@@ -56,11 +57,11 @@ async function saveJSON(collection, category, typeLabel) {
 async function saveExcel(collection, category, typeLabel) {
   console.log(`\nScraping ${typeLabel}...`);
   const rankings = await scrapeRankings(collection, category);
-  const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category }));
+  const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category, '세부 카테고리': r.subCategory }));
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-  ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 16 }];
+  ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }];
   const subDir = path.join(outputDir, dateDir());
   if (!fs.existsSync(subDir)) fs.mkdirSync(subDir);
   const fileName = `${timestamp()}.xlsx`;
@@ -126,11 +127,11 @@ function startServer() {
   app.get('/api/rankings/excel', async (req, res) => {
     try {
       const rankings = await scrapeRankings(gplay.collection.GROSSING);
-      const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category }));
+      const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category, '세부 카테고리': r.subCategory }));
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 16 }];
+      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }];
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
@@ -152,11 +153,11 @@ function startServer() {
   app.get('/api/rankings/games/excel', async (req, res) => {
     try {
       const rankings = await scrapeRankings(gplay.collection.GROSSING, gplay.category.GAME);
-      const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category }));
+      const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category, '세부 카테고리': r.subCategory }));
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 16 }];
+      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }];
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
