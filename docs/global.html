@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="한국·미국·일본·러시아 4개 플레이스토어 게임 마켓의 순위·장르·퍼블리셔를 비교하는 시장조사 리포트">
+<title>해외 게임 마켓 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page-bg: #f9f9f7; --surface: #fcfcfb; --surface-2: #f2f1ec;
+    --ink: #0b0b0b; --ink-2: #52514e; --ink-muted: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --accent: #4338ca; --accent-ink: #ffffff; --accent-wash: rgba(67,56,202,0.08);
+    --success: #006300; --critical: #d03b3b;
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+    --series-5: #e87ba4; --series-6: #008300; --series-7: #4a3aa7; --series-8: #e34948;
+    --font-display: 'Noto Serif KR', serif;
+    --font-body: 'Noto Sans KR', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px -16px rgba(11,11,11,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page-bg: #0d0d0d; --surface: #1a1a19; --surface-2: #222221;
+      --ink: #ffffff; --ink-2: #c3c2b7; --ink-muted: #92908a;
+      --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+      --accent: #8b85f0; --accent-ink: #15132f; --accent-wash: rgba(139,133,240,0.16);
+      --success: #0ca30c; --critical: #e0605f;
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+      --series-5: #d55181; --series-6: #2fae2f; --series-7: #9085e9; --series-8: #e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page-bg: #0d0d0d; --surface: #1a1a19; --surface-2: #222221;
+    --ink: #ffffff; --ink-2: #c3c2b7; --ink-muted: #92908a;
+    --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+    --accent: #8b85f0; --accent-ink: #15132f; --accent-wash: rgba(139,133,240,0.16);
+    --success: #0ca30c; --critical: #e0605f;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --series-5: #d55181; --series-6: #2fae2f; --series-7: #9085e9; --series-8: #e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.6);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--page-bg); }
+  body { margin: 0; background: var(--page-bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; padding-inline: 20px; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; color: var(--ink); }
+  a { color: var(--accent); }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header.top { padding-block: 28px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .nav-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .nav-row a { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); }
+  .nav-row a.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+  h1.title { font-size: clamp(24px, 3.4vw, 34px); font-weight: 900; line-height: 1.2; }
+  p.lede { max-width: 68ch; color: var(--ink-2); font-size: 15px; margin: 2px 0 0; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+  .meta-row b { color: var(--ink-2); font-weight: 600; }
+  main { display: flex; flex-direction: column; gap: 28px; padding-block: 20px 60px; min-width: 0; }
+  main > * { min-width: 0; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px 22px 26px; box-shadow: var(--shadow); }
+  .panel > .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 16px; }
+  h2.panel-title { font-size: clamp(18px, 2.2vw, 21px); font-weight: 700; }
+  p.panel-sub { color: var(--ink-muted); font-size: 13px; margin: 3px 0 0; }
+  .panel-note { color: var(--ink-muted); font-size: 12.5px; margin-top: 14px; }
+
+  .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; min-width: 0; }
+  .market-grid > * { min-width: 0; }
+  .market-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
+  .market-card .mc-head { display: flex; align-items: center; gap: 8px; }
+  .market-card .flag { font-size: 22px; line-height: 1; }
+  .market-card .mc-name { font-weight: 700; font-size: 15px; }
+  .market-card .mc-metric { font-size: 11.5px; color: var(--ink-muted); background: var(--surface-2); border-radius: 999px; padding: 2px 8px; margin-left: auto; }
+  .market-card .mc-no1-label { font-size: 11.5px; color: var(--ink-muted); }
+  .market-card .mc-no1 { font-weight: 700; font-size: 16px; }
+  .market-card .mc-sub { font-size: 12.5px; color: var(--ink-2); }
+  .market-card .mc-note { font-size: 11.5px; color: var(--ink-muted); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 2px; }
+
+  .market-rows { display: flex; flex-direction: column; gap: 18px; }
+  .market-row { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 14px; }
+  .market-row .mr-label { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+  @media (max-width: 640px) { .market-row { grid-template-columns: 1fr; } }
+
+  .share-bar { display: flex; width: 100%; height: 24px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--page-bg); min-width: 0; }
+  .share-seg { height: 100%; min-width: 2px; }
+  .legend-list { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .legend-list li { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  table.detail { width: 100%; border-collapse: collapse; min-width: 560px; }
+  table.detail thead th { background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.detail tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  table.detail tbody tr:last-child td { border-bottom: none; }
+  table.detail tbody tr:hover { background: var(--accent-wash); }
+  .flags { font-family: var(--font-mono); font-size: 13px; white-space: nowrap; }
+  .flags .fr { margin-right: 10px; }
+  .flags .fr b { font-weight: 700; }
+
+  .top-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; min-width: 0; }
+  .top-grid > * { min-width: 0; }
+  .top-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .top-list li { display: flex; align-items: baseline; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .top-list li:first-child { border-top: none; }
+  .top-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink-muted); width: 22px; flex-shrink: 0; }
+  .top-name { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-genre { font-size: 11px; color: var(--ink-muted); flex-shrink: 0; }
+
+  footer { border-top: 1px solid var(--border); padding-block: 20px 40px; color: var(--ink-muted); font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
+  footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <nav class="nav-row">
+      <a href="index.html">🇰🇷 한국 상세 리포트</a>
+      <a href="global.html" class="active">🌐 해외 마켓 비교</a>
+    </nav>
+    <h1 class="title">해외 게임 마켓 비교</h1>
+    <p class="lede">한국·미국·일본·러시아 4개 플레이스토어의 오늘자 게임 순위를 같은 기준으로 나란히 비교합니다. 러시아는 Google Play 결제가 중단되어 있어 매출 대신 인기 무료 순위를 사용합니다.</p>
+    <div class="meta-row" id="metaRow"></div>
+  </header>
+
+  <main>
+    <section class="market-grid" id="marketGrid" aria-label="마켓별 요약"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">장르 구성 비교</h2>
+          <p class="panel-sub">마켓별 Top100 장르 비중 — 색상은 모든 마켓에서 동일한 장르를 가리킵니다</p>
+        </div>
+      </div>
+      <div class="market-rows" id="genreRows"></div>
+      <ul class="legend-list" id="genreLegend"></ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">글로벌 동시 흥행작</h2>
+          <p class="panel-sub" id="hitsSub">2개 이상 마켓에서 동시에 Top100에 오른 게임 (같은 앱ID 기준)</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="detail" id="hitsTable">
+          <thead><tr><th>게임</th><th>퍼블리셔</th><th>마켓별 순위</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">여러 마켓에서 활약하는 퍼블리셔</h2>
+          <p class="panel-sub" id="pubSub">2개 이상 마켓의 Top100에 게임을 보유한 퍼블리셔</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="detail" id="pubTable">
+          <thead><tr><th>퍼블리셔</th><th>진출 마켓</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">마켓별 Top 10</h2>
+          <p class="panel-sub">오늘 기준 각 마켓의 상위 10개 게임</p>
+        </div>
+      </div>
+      <div class="top-grid" id="topGrid"></div>
+    </section>
+
+    <footer>
+      <div>수집: <code>google-play-scraper</code> · 한국/미국/일본은 <code>GROSSING</code>(매출), 러시아는 <code>TOP_FREE</code>(인기 무료) 컬렉션의 게임 카테고리 상위 100위. 매일 1회 수집하며 <code>server/analyze-intl.js</code>가 이 페이지의 <code>docs/global-data.js</code>를 재생성합니다.</div>
+      <div>해외 마켓은 수집을 막 시작해 오늘 하루치 스냅샷만 있습니다 — 데이터가 쌓이면 이 페이지에도 순위 추이 그래프가 추가될 수 있습니다.</div>
+      <div id="footerGenerated"></div>
+    </footer>
+  </main>
+</div>
+
+<script src="global-data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var DATA = window.GLOBAL_DATA;
+  var app = document.querySelector('main');
+  if (!DATA) {
+    app.innerHTML = '';
+    var msg = document.createElement('p');
+    msg.textContent = '데이터를 불러오지 못했습니다. global-data.js가 같은 폴더에 있는지 확인해주세요.';
+    app.appendChild(msg);
+    return;
+  }
+
+  var SERIES_VARS = ['--series-1','--series-2','--series-3','--series-4','--series-5','--series-6','--series-7','--series-8'];
+  function seriesColor(i) { return getComputedStyle(document.documentElement).getPropertyValue(SERIES_VARS[i % SERIES_VARS.length]).trim(); }
+
+  function mk(tag, opts) {
+    var e = document.createElement(tag);
+    opts = opts || {};
+    if (opts.cls) e.className = opts.cls;
+    if (opts.text != null) e.textContent = opts.text;
+    if (opts.attrs) for (var k in opts.attrs) e.setAttribute(k, opts.attrs[k]);
+    if (opts.style) for (var k2 in opts.style) e.style[k2] = opts.style[k2];
+    if (opts.children) opts.children.forEach(function (c) { if (c) e.appendChild(c); });
+    return e;
+  }
+  function fmtFull(iso) { if (!iso) return ''; var p = iso.split('-'); return p[0] + '.' + p[1] + '.' + p[2]; }
+
+  (function renderMeta() {
+    var row = document.getElementById('metaRow');
+    var kr = DATA.markets.find(function (m) { return m.code === 'kr'; });
+    row.appendChild(mk('span', { children: [mk('b', { text: '기준일: ' }), document.createTextNode(fmtFull(DATA.markets[0] ? DATA.markets[0].date : ''))] }));
+    row.appendChild(mk('span', { children: [mk('b', { text: '비교 마켓: ' }), document.createTextNode(DATA.markets.length + '개')] }));
+    if (kr) row.appendChild(mk('span', { children: [mk('b', { text: '한국 데이터 기간: ' }), document.createTextNode(kr.daysTracked + '일')] }));
+    var gen = document.getElementById('footerGenerated');
+    try {
+      var d = new Date(DATA.generatedAt);
+      gen.textContent = '리포트 생성 시각: ' + d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+    } catch (e) { gen.textContent = ''; }
+  })();
+
+  (function renderMarketCards() {
+    var grid = document.getElementById('marketGrid');
+    DATA.markets.forEach(function (m) {
+      var top1 = m.top[0];
+      grid.appendChild(mk('div', { cls: 'market-card', children: [
+        mk('div', { cls: 'mc-head', children: [
+          mk('span', { cls: 'flag', text: m.flag }),
+          mk('span', { cls: 'mc-name', text: m.label }),
+          mk('span', { cls: 'mc-metric', text: m.metricLabel })
+        ]}),
+        mk('div', { cls: 'mc-no1-label', text: '오늘의 1위' }),
+        mk('div', { cls: 'mc-no1', text: top1 ? top1.name : '–' }),
+        mk('div', { cls: 'mc-sub', text: top1 ? (top1.publisher + ' · ' + top1.genre) : '' }),
+        m.note ? mk('div', { cls: 'mc-note', text: m.note }) : null
+      ]}));
+    });
+  })();
+
+  (function renderGenre() {
+    var rows = document.getElementById('genreRows');
+    DATA.markets.forEach(function (m) {
+      var bar = mk('div', { cls: 'share-bar' });
+      m.genreShare.forEach(function (g, i) {
+        if (g.pct <= 0) return;
+        bar.appendChild(mk('div', { cls: 'share-seg', style: { flexBasis: g.pct + '%', background: seriesColor(i) }, attrs: { title: g.name + ' ' + g.pct + '%' } }));
+      });
+      rows.appendChild(mk('div', { cls: 'market-row', children: [
+        mk('div', { cls: 'mr-label', children: [mk('span', { text: m.flag }), document.createTextNode(' ' + m.label)] }),
+        bar
+      ]}));
+    });
+    var legend = document.getElementById('genreLegend');
+    var names = DATA.markets[0] ? DATA.markets[0].genreShare.map(function (g) { return g.name; }) : [];
+    names.forEach(function (name, i) {
+      legend.appendChild(mk('li', { children: [
+        mk('span', { cls: 'swatch', style: { background: seriesColor(i) } }),
+        document.createTextNode(name)
+      ]}));
+    });
+  })();
+
+  (function renderHits() {
+    var tbody = document.querySelector('#hitsTable tbody');
+    var list = DATA.globalHits || [];
+    document.getElementById('hitsSub').textContent = '2개 이상 마켓에서 동시에 Top100에 오른 게임 (같은 앱ID 기준) — ' + list.length + '개';
+    if (list.length === 0) {
+      tbody.appendChild(mk('tr', { children: [mk('td', { text: '해당 사항 없음', attrs: { colspan: '3' } })] }));
+      return;
+    }
+    list.forEach(function (h) {
+      var flagsEl = mk('span', { cls: 'flags' });
+      h.entries.forEach(function (e) {
+        flagsEl.appendChild(mk('span', { cls: 'fr', children: [
+          document.createTextNode(e.flag + ' '),
+          mk('b', { text: String(e.rank) })
+        ]}));
+      });
+      tbody.appendChild(mk('tr', { children: [
+        mk('td', { text: h.entries[0].name, style: { fontWeight: 600 }, attrs: { title: h.entries[0].name } }),
+        mk('td', { text: h.entries[0].publisher, style: { color: 'var(--ink-2)' } }),
+        mk('td', { children: [flagsEl] })
+      ]}));
+    });
+  })();
+
+  (function renderPublishers() {
+    var tbody = document.querySelector('#pubTable tbody');
+    var list = DATA.globalPublishers || [];
+    document.getElementById('pubSub').textContent = '2개 이상 마켓의 Top100에 게임을 보유한 퍼블리셔 — ' + list.length + '개';
+    list.forEach(function (p) {
+      tbody.appendChild(mk('tr', { children: [
+        mk('td', { text: p.publisher, style: { fontWeight: 600 } }),
+        mk('td', { text: p.markets.map(function (m) { return m.flag; }).join(' ') + '  (' + p.marketCount + '개)' })
+      ]}));
+    });
+  })();
+
+  (function renderTopGrid() {
+    var grid = document.getElementById('topGrid');
+    DATA.markets.forEach(function (m) {
+      var list = mk('ul', { cls: 'top-list' });
+      m.top.forEach(function (t) {
+        list.appendChild(mk('li', { children: [
+          mk('span', { cls: 'top-rank', text: t.rank }),
+          mk('span', { cls: 'top-name', text: t.name, attrs: { title: t.name } }),
+          mk('span', { cls: 'top-genre', text: t.genre })
+        ]}));
+      });
+      grid.appendChild(mk('div', { children: [
+        mk('h3', { text: m.flag + ' ' + m.label, style: { fontSize: '14px', fontFamily: 'var(--font-body)', marginBottom: '6px' } }),
+        list
+      ]}));
+    });
+  })();
+})();
+</script>
+</body>
+</html>

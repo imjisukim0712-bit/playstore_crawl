@@ -19,11 +19,12 @@ const TREND_DEFAULT_N = 8; // matches the dataviz categorical palette's adjacent
 const GENRE_FOLD_N = 7; // token ceiling; the rest fold into "기타"
 const PUBLISHER_TOP_N = 15;
 
-function walk(dir) {
+function walk(dir, skipNames) {
   let results = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (skipNames && skipNames.has(entry.name)) continue;
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) results = results.concat(walk(full));
+    if (entry.isDirectory()) results = results.concat(walk(full, skipNames));
     else if (entry.isFile() && entry.name.endsWith('.xlsx')) results.push(full);
   }
   return results;
@@ -41,8 +42,30 @@ function parseTimestamp(filePath) {
   };
 }
 
+// The Play Store '출시일'/released field comes back in whatever locale the
+// store was queried in. JS Date() parses "2026. 8. 20." (ko), "Apr 11, 2023"
+// (en) and "2021/02/17" (ja) natively; Russian's Cyrillic month name needs a
+// small manual lookup.
+const RU_MONTHS = [['мар', 3], ['ма', 5], ['янв', 1], ['фев', 2], ['апр', 4], ['июн', 6], ['июл', 7], ['авг', 8], ['сен', 9], ['окт', 10], ['ноя', 11], ['дек', 12]];
+function parseReleased(str) {
+  if (!str) return null;
+  const ru = String(str).match(/^(\d{1,2})\s+([а-яё]+)\.?\s*(\d{4})/iu);
+  if (ru) {
+    const token = ru[2].toLowerCase();
+    const month = RU_MONTHS.find(([prefix]) => token.startsWith(prefix));
+    if (!month) return null;
+    const d = new Date(Date.UTC(+ru[3], month[1] - 1, +ru[1]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+const NEW_RELEASE_DAYS = 90;
+
 // --- 1. Pick one "closing" snapshot per calendar date (the latest run that day) ---
-const candidateFiles = walk(outputDir).filter(f => DATE_FOLDER_RE.test(path.basename(path.dirname(f))));
+// 'intl' holds the separate international-market scrapes (see analyze-intl.js) and
+// must never be swept into the KR dataset below.
+const candidateFiles = walk(outputDir, new Set(['intl'])).filter(f => DATE_FOLDER_RE.test(path.basename(path.dirname(f))));
 
 const byDate = new Map();
 for (const f of candidateFiles) {
@@ -73,13 +96,15 @@ dates.forEach((date, di) => {
     const publisher = String(r['퍼블리셔'] || '').trim() || 'Unknown';
     const genre = String(r['세부 카테고리'] || '').trim();
     const category = String(r['카테고리'] || '').trim();
+    const released = String(r['출시일'] || '').trim();
     if (!name || !rank || category !== '게임') continue;
-    if (!games.has(name)) games.set(name, { name, publisher, genre, ranks: new Array(dates.length).fill(null) });
+    if (!games.has(name)) games.set(name, { name, publisher, genre, released: '', ranks: new Array(dates.length).fill(null) });
     const g = games.get(name);
     g.ranks[di] = rank;
-    if (publisher) g.publisher = publisher; // keep the most recently seen publisher/genre label
+    if (publisher) g.publisher = publisher; // keep the most recently seen publisher/genre/release-date label
     if (genre) g.genre = genre;
-    snap.push({ rank, name, publisher, genre });
+    if (released) g.released = released;
+    snap.push({ rank, name, publisher, genre, released });
   }
   snap.sort((a, b) => a.rank - b.rank);
   snapshots.push({ date, time, count: snap.length });
@@ -235,10 +260,13 @@ const trendGames = [...gameList]
 // --- 10. Full detail table (latest snapshot) with change vs prev day + sparkline window ---
 const SPARK_WINDOW = 30;
 const sparkStart = Math.max(0, dates.length - SPARK_WINDOW);
+const latestDate = new Date(dates[latestIdx] + 'T00:00:00Z');
 const detailTable = latestSnap.map(row => {
   const g = games.get(row.name);
   const prevRank = idxPrevDay >= 0 ? rankOf(g, idxPrevDay) : null;
   const change = prevRank != null ? prevRank - row.rank : null;
+  const releasedDate = parseReleased(row.released || g.released);
+  const daysSinceRelease = releasedDate ? Math.round((latestDate - releasedDate) / 86400000) : null;
   return {
     rank: row.rank,
     name: row.name,
@@ -246,9 +274,15 @@ const detailTable = latestSnap.map(row => {
     genre: genreLabel(row.genre),
     change,
     isNew: idxPrevDay >= 0 ? prevRank == null : false,
+    released: row.released || g.released || '',
+    daysSinceRelease,
+    isNewRelease: daysSinceRelease != null && daysSinceRelease >= 0 && daysSinceRelease <= NEW_RELEASE_DAYS,
     spark: g.ranks.slice(sparkStart),
   };
 });
+const newReleases = detailTable
+  .filter(r => r.isNewRelease)
+  .sort((a, b) => a.daysSinceRelease - b.daysSinceRelease);
 
 // --- 11. Assemble + write ---
 const data = {
@@ -270,6 +304,7 @@ const data = {
     longestNo1: daysNo1[0] || null,
     topPublisher: publisherLeaderboard[0] || null,
     topGenre: genreShareLatest[0] || null,
+    newReleaseCount: newReleases.length,
   },
   notable: { topRisers, topFallers, newEntries, dropouts, comparedTo: idxPrevDay >= 0 ? dates[idxPrevDay] : null },
   steadiest,
@@ -278,6 +313,8 @@ const data = {
   genreTrend,
   publisherLeaderboard,
   trendGames,
+  newReleaseWindowDays: NEW_RELEASE_DAYS,
+  newReleases,
   detailTable,
 };
 

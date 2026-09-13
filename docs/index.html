@@ -123,6 +123,9 @@
 
   /* ---------- header ---------- */
   header.top { padding-block: 32px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .nav-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .nav-row a { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); }
+  .nav-row a.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
   .eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.04em; text-transform: uppercase; }
   .badge-live { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 999px; background: var(--accent-wash); color: var(--accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0; text-transform: none; }
   .badge-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
@@ -167,6 +170,7 @@
   .delta.up { color: var(--success); }
   .delta.down { color: var(--critical); }
   .pill-new { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-wash); border-radius: 999px; padding: 2px 8px; }
+  .pill-release { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 7px; margin-left: 5px; }
   .empty-note { font-size: 13px; color: var(--ink-muted); padding: 8px 0; }
 
   /* ---------- genre share bar ---------- */
@@ -242,6 +246,10 @@
 <body>
 <div class="wrap">
   <header class="top">
+    <nav class="nav-row">
+      <a href="index.html" class="active">🇰🇷 한국 상세 리포트</a>
+      <a href="global.html">🌐 해외 마켓 비교</a>
+    </nav>
     <div class="eyebrow">
       <span>Play Store · 대한민국 · 매출 순위 TOP 100 · 게임</span>
       <span class="badge-live">매일 자동 갱신</span>
@@ -302,6 +310,23 @@
           </table>
         </div>
       </div>
+    </section>
+
+    <!-- New releases -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">신작 현황</h2>
+          <p class="panel-sub" id="newReleaseSub">스테디셀러 반대편 — 출시 90일 이내에 Top100에 오른 게임</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="detail" id="newReleaseTable">
+          <thead><tr><th>순위</th><th>게임</th><th>퍼블리셔</th><th>장르</th><th>출시일</th><th>출시 후</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="panel-note" id="newReleaseEmpty" hidden>최근 90일 이내 출시되어 Top100에 오른 게임이 없습니다.</p>
     </section>
 
     <!-- Genre -->
@@ -461,6 +486,7 @@
     grid.appendChild(tile('최장 1위 기록', k.longestNo1 ? k.longestNo1.days + '일' : '—', k.longestNo1 ? (k.longestNo1.name + ' · ' + k.longestNo1.publisher) : ''));
     grid.appendChild(tile('오늘의 최다 보유 퍼블리셔', k.topPublisher ? k.topPublisher.publisher : '—', k.topPublisher ? ('Top100 중 ' + k.topPublisher.count + '개 보유') : ''));
     grid.appendChild(tile('오늘의 최다 장르', k.topGenre ? k.topGenre.name : '—', k.topGenre ? ('Top100 중 ' + k.topGenre.count + '개 (' + k.topGenre.count + '%)') : ''));
+    grid.appendChild(tile('신작 (출시 ' + DATA.newReleaseWindowDays + '일 이내)', (k.newReleaseCount != null ? k.newReleaseCount : '—') + '개', 'Top100 중 최근 출시작 비중'));
     grid.appendChild(tile('수집 기간', m.totalDays + '일 연속', fmtFull(m.firstDate) + ' ~ ' + fmtFull(m.lastDate)));
   })();
 
@@ -515,6 +541,28 @@
         mk('td', { text: g.name, style: { fontWeight: 600 } }),
         mk('td', { text: g.publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { text: g.days + '일', style: { fontFamily: 'var(--font-mono)' } })
+      ]}));
+    });
+  })();
+
+  // ============================================================ new releases
+  (function renderNewReleases() {
+    var list = DATA.newReleases || [];
+    document.getElementById('newReleaseSub').textContent = '스테디셀러 반대편 — 출시 ' + DATA.newReleaseWindowDays + '일 이내에 Top100에 오른 게임 (' + list.length + '개)';
+    var tbody = document.querySelector('#newReleaseTable tbody');
+    if (list.length === 0) {
+      document.getElementById('newReleaseTable').closest('.table-scroll').hidden = true;
+      document.getElementById('newReleaseEmpty').hidden = false;
+      return;
+    }
+    list.forEach(function (r) {
+      tbody.appendChild(mk('tr', { children: [
+        mk('td', { cls: 'c-rank', text: r.rank }),
+        mk('td', { text: r.name, style: { fontWeight: 600 } }),
+        mk('td', { text: r.publisher, style: { color: 'var(--ink-2)' } }),
+        mk('td', { children: [mk('span', { cls: 'genre-tag', text: r.genre })] }),
+        mk('td', { text: r.released, style: { fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums', color: 'var(--ink-2)' } }),
+        mk('td', { text: 'D+' + r.daysSinceRelease, style: { fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: 'var(--accent)' } })
       ]}));
     });
   })();
@@ -837,6 +885,13 @@
           mk('td', { cls: 'c-spark' })
         ]});
         tr.children[4].appendChild(mk('span', { cls: 'genre-tag', text: r.genre }));
+        if (r.isNewRelease) {
+          tr.children[4].appendChild(mk('span', {
+            cls: 'pill-release',
+            text: '신작',
+            attrs: { title: (r.released || '') + ' 출시 · D+' + r.daysSinceRelease }
+          }));
+        }
         tr.children[5].appendChild(sparkline(r.spark));
         tbody.appendChild(tr);
       });
