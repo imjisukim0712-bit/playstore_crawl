@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Play Store 대한민국 게임 매출 순위 시장조사 리포트 — 매일 자동 수집되는 데이터를 기반으로 한 요약 및 상세 분석">
+<title>플레이스토어 게임 매출 리포트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page-bg: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f2f1ec;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --ink-muted: #898781;
+    --grid: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --accent: #4338ca;
+    --accent-ink: #ffffff;
+    --accent-wash: rgba(67,56,202,0.08);
+    --success: #006300;
+    --critical: #d03b3b;
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-4: #eda100;
+    --series-5: #e87ba4;
+    --series-6: #008300;
+    --series-7: #4a3aa7;
+    --series-8: #e34948;
+    --seq-250: #86b6ef;
+    --seq-450: #2a78d6;
+    --seq-600: #184f95;
+    --tooltip-bg: #17171a;
+    --tooltip-ink: #ffffff;
+    --tooltip-ink-2: #c7c6c2;
+    --font-display: 'Noto Serif KR', serif;
+    --font-body: 'Noto Sans KR', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px -16px rgba(11,11,11,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page-bg: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #222221;
+      --ink: #ffffff;
+      --ink-2: #c3c2b7;
+      --ink-muted: #92908a;
+      --grid: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255,255,255,0.10);
+      --accent: #8b85f0;
+      --accent-ink: #15132f;
+      --accent-wash: rgba(139,133,240,0.16);
+      --success: #0ca30c;
+      --critical: #e0605f;
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+      --series-5: #d55181;
+      --series-6: #008300;
+      --series-7: #9085e9;
+      --series-8: #e66767;
+      --seq-250: #184f95;
+      --seq-450: #3987e5;
+      --seq-600: #86b6ef;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page-bg: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #222221;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --ink-muted: #92908a;
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --accent: #8b85f0;
+    --accent-ink: #15132f;
+    --accent-wash: rgba(139,133,240,0.16);
+    --success: #0ca30c;
+    --critical: #e0605f;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+    --seq-250: #184f95;
+    --seq-450: #3987e5;
+    --seq-600: #86b6ef;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--page-bg); }
+  body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    padding-inline: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; color: var(--ink); }
+  a { color: var(--accent); }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  /* ---------- header ---------- */
+  header.top { padding-block: 32px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .nav-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .nav-row a { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); }
+  .nav-row a.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+  .eyebrow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .badge-live { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 7px; border-radius: 999px; background: var(--accent-wash); color: var(--accent); font-size: 11.5px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+  .badge-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1.title { font-size: clamp(26px, 3.6vw, 38px); font-weight: 900; line-height: 1.2; }
+  p.lede { max-width: 62ch; color: var(--ink-2); font-size: 15.5px; margin: 2px 0 0; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
+  .meta-row b { color: var(--ink-2); font-weight: 600; }
+
+  main { display: flex; flex-direction: column; gap: 30px; padding-block: 22px 60px; min-width: 0; }
+  main > * { min-width: 0; }
+
+  /* ---------- panel/card ---------- */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px 22px 26px; box-shadow: var(--shadow); }
+  .panel > .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 16px; }
+  h2.panel-title { font-size: clamp(18px, 2.2vw, 21px); font-weight: 700; }
+  p.panel-sub { color: var(--ink-muted); font-size: 13px; margin: 3px 0 0; }
+  .panel-note { color: var(--ink-muted); font-size: 12.5px; margin-top: 14px; }
+
+  /* ---------- KPI tiles ---------- */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; min-width: 0; }
+  .kpi-grid > * { min-width: 0; }
+  .kpi-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .kpi-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.02em; }
+  .kpi-value { font-size: clamp(19px, 2.6vw, 24px); font-weight: 700; color: var(--ink); overflow-wrap: break-word; }
+  .kpi-sub { font-size: 12.5px; color: var(--ink-2); }
+
+  /* ---------- grid layouts ---------- */
+  .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .cols-2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+  .cols-3 > *, .cols-2 > * { min-width: 0; }
+  @media (max-width: 860px) { .cols-3 { grid-template-columns: 1fr; } .cols-2 { grid-template-columns: 1fr; } }
+
+  /* ---------- notable-change lists ---------- */
+  .change-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 16px; background: var(--surface-2); }
+  .change-card h3 { font-size: 14px; font-weight: 700; font-family: var(--font-body); display: flex; align-items: center; gap: 6px; }
+  .change-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .change-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .change-list li:first-child { border-top: none; }
+  .change-name { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .change-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--ink-muted); }
+  .delta { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .delta.up { color: var(--success); }
+  .delta.down { color: var(--critical); }
+  .pill-new { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-wash); border-radius: 999px; padding: 2px 8px; }
+  .pill-release { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 7px; margin-left: 5px; }
+  .empty-note { font-size: 13px; color: var(--ink-muted); padding: 8px 0; }
+
+  /* ---------- genre share bar ---------- */
+  .share-bar { display: flex; width: 100%; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--page-bg); }
+  .share-seg { height: 100%; min-width: 2px; }
+  .legend-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; }
+  .legend-list li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-name { flex: 1; color: var(--ink-2); }
+  .legend-value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink); }
+
+  /* ---------- publisher bars ---------- */
+  .bar-rows { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 10px; padding: 3px 0; border-radius: 8px; cursor: default; }
+  .bar-row:focus-visible, .bar-row:hover { background: var(--accent-wash); outline: none; }
+  .bar-pub { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { height: 18px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px 0 0 4px; background: var(--seq-450); }
+  .bar-count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--ink-2); text-align: right; }
+  @media (max-width: 560px) { .bar-row { grid-template-columns: 96px 1fr 34px; } .bar-pub { font-size: 12px; } }
+
+  /* ---------- chart chrome (svg) ---------- */
+  .chart-scroll { overflow-x: auto; }
+  .chart-scroll svg { display: block; min-width: 560px; width: 100%; height: auto; }
+  .chart-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 4px; margin: 14px 0 0; padding: 0; }
+  .chart-legend button { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12.5px; color: var(--ink-2); background: none; border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px 5px 8px; cursor: pointer; }
+  .chart-legend button .swatch { width: 16px; height: 3px; border-radius: 2px; }
+  .chart-legend button .lg-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+  .chart-legend button.dim { opacity: 0.38; }
+  .chart-legend button:hover { border-color: var(--accent); }
+  .chart-legend .reset { color: var(--accent); font-weight: 600; border-style: dashed; }
+  .axis-label, .tick-label { fill: var(--ink-muted); font-size: 10.5px; font-family: var(--font-mono); }
+
+  /* ---------- tooltip ---------- */
+  #tooltip { position: fixed; z-index: 60; pointer-events: none; background: var(--tooltip-bg); color: var(--tooltip-ink); border-radius: 8px; padding: 8px 11px; font-size: 12.5px; line-height: 1.5; box-shadow: 0 6px 20px rgba(0,0,0,0.35); max-width: 240px; transform: translate(-50%, calc(-100% - 12px)); }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 4px; color: var(--tooltip-ink); font-family: var(--font-mono); }
+  #tooltip .tt-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  #tooltip .tt-key { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  #tooltip .tt-name { flex: 1; color: var(--tooltip-ink-2); }
+  #tooltip .tt-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--tooltip-ink); }
+
+  /* ---------- detail table ---------- */
+  .filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .filter-row input[type="search"], .filter-row select {
+    font: inherit; font-size: 13.5px; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--ink); min-width: 0;
+  }
+  .filter-row input[type="search"] { flex: 1 1 220px; }
+  .filter-row select { flex: 0 1 150px; }
+  .filter-count { font-size: 12.5px; color: var(--ink-muted); margin-left: auto; white-space: nowrap; }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  table.detail { width: 100%; border-collapse: collapse; min-width: 720px; }
+  table.detail thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+  table.detail thead th .arrow { font-size: 10px; color: var(--accent); margin-left: 3px; }
+  table.detail thead th:hover { color: var(--ink); }
+  table.detail tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  table.detail tbody tr:last-child td { border-bottom: none; }
+  table.detail tbody tr:hover { background: var(--accent-wash); }
+  td.c-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; }
+  td.c-name { font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td.c-pub { color: var(--ink-2); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  td.c-change { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .genre-tag { display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+  td.c-spark svg { display: block; }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--border); padding-block: 20px 40px; color: var(--ink-muted); font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
+  footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <nav class="nav-row">
+      <a href="index.html" class="active">🇰🇷 한국 상세 리포트</a>
+      <a href="global.html">🌐 해외 마켓 비교</a>
+    </nav>
+    <div class="eyebrow">
+      <span>Play Store · 대한민국 · 매출 순위 TOP 100 · 게임</span>
+      <span class="badge-live">매일 자동 갱신</span>
+    </div>
+    <h1 class="title">플레이스토어 게임 매출 리포트</h1>
+    <p class="lede">playstore_crawl이 매일 수집한 구글 플레이 대한민국 매출 순위(게임 부문 1~100위)를 바탕으로 한 시장조사 리포트입니다. GitHub Actions가 매일 스토어를 다시 수집하고 이 페이지를 자동으로 갱신합니다.</p>
+    <div class="meta-row" id="metaRow"></div>
+  </header>
+
+  <main>
+    <!-- KPI -->
+    <section class="kpi-grid" id="kpiGrid" aria-label="핵심 지표"></section>
+
+    <!-- Notable changes -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">오늘의 주목할 변화</h2>
+          <p class="panel-sub" id="notableSub">전일 대비 순위 변동</p>
+        </div>
+      </div>
+      <div class="cols-3">
+        <div class="change-card">
+          <h3 style="color:var(--success)">▲ 급상승 TOP</h3>
+          <ul class="change-list" id="risersList"></ul>
+        </div>
+        <div class="change-card">
+          <h3 style="color:var(--critical)">▼ 급하락 TOP</h3>
+          <ul class="change-list" id="fallersList"></ul>
+        </div>
+        <div class="change-card">
+          <h3>신규 진입 · 차트 아웃</h3>
+          <ul class="change-list" id="entriesList"></ul>
+          <ul class="change-list" id="dropoutsList" style="margin-top:8px;"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Steady performers -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">꾸준함 리포트</h2>
+          <p class="panel-sub">전체 수집 기간 기준 · Top100에 80% 이상 등장한 게임 중 평균 순위가 높은 순</p>
+        </div>
+      </div>
+      <div class="cols-2">
+        <div class="table-scroll">
+          <table class="detail" id="steadyTable">
+            <thead><tr><th>게임</th><th>퍼블리셔</th><th>평균 순위</th><th>등장 일수</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="table-scroll">
+          <table class="detail" id="reignTable">
+            <thead><tr><th>역대 1위 최장 기록</th><th>퍼블리셔</th><th>1위 일수</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- New releases -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">신작 현황</h2>
+          <p class="panel-sub" id="newReleaseSub">스테디셀러 반대편 — 출시 90일 이내에 Top100에 오른 게임</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="detail" id="newReleaseTable">
+          <thead><tr><th>순위</th><th>게임</th><th>퍼블리셔</th><th>장르</th><th>출시일</th><th>출시 후</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="panel-note" id="newReleaseEmpty" hidden>최근 90일 이내 출시되어 Top100에 오른 게임이 없습니다.</p>
+    </section>
+
+    <!-- Genre -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">장르 시장 점유율</h2>
+          <p class="panel-sub" id="genreSub">Top100 게임의 장르 구성 (주간 평균)</p>
+        </div>
+      </div>
+      <div class="cols-2">
+        <div>
+          <div class="chart-scroll"><svg id="genreTrendChart" viewBox="0 0 720 300" role="img" aria-label="장르별 점유율 추이"></svg></div>
+        </div>
+        <div>
+          <p class="panel-sub" style="margin-bottom:8px;">오늘 기준 구성</p>
+          <div class="share-bar" id="shareBar"></div>
+          <ul class="legend-list" id="shareLegend"></ul>
+        </div>
+      </div>
+      <p class="panel-note">그래프는 장르 필드 수집이 안정된 2026-07-18 이후 주간 데이터만 사용합니다. 상위 7개 장르 외 나머지는 &ldquo;기타&rdquo;로 묶었습니다.</p>
+    </section>
+
+    <!-- Publisher leaderboard -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">퍼블리셔 리더보드</h2>
+          <p class="panel-sub">오늘 Top100 안에 보유한 게임 수 기준</p>
+        </div>
+      </div>
+      <div class="bar-rows" id="publisherBars"></div>
+    </section>
+
+    <!-- Rank trend -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">순위 추이 — 오늘의 Top 8</h2>
+          <p class="panel-sub">전체 수집 기간의 일별 순위 변화 (1위가 위쪽)</p>
+        </div>
+      </div>
+      <div class="chart-scroll"><svg id="trendChart" viewBox="0 0 960 380" role="img" aria-label="상위 8개 게임 순위 추이"></svg></div>
+      <ul class="chart-legend" id="trendLegend"></ul>
+    </section>
+
+    <!-- Detail table -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">상세 순위표 — Top 100</h2>
+          <p class="panel-sub" id="detailSub">오늘 기준 전체 게임 매출 순위</p>
+        </div>
+      </div>
+      <div class="filter-row">
+        <input type="search" id="searchInput" placeholder="게임 이름 또는 퍼블리셔 검색" aria-label="게임 검색">
+        <select id="genreSelect" aria-label="장르 필터"></select>
+        <span class="filter-count" id="filterCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table class="detail" id="detailTable">
+          <thead>
+            <tr>
+              <th data-key="rank">순위</th>
+              <th data-key="change">변동</th>
+              <th data-key="name">게임</th>
+              <th data-key="publisher">퍼블리셔</th>
+              <th data-key="genre">장르</th>
+              <th>최근 30일 추이</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <div>수집: <code>google-play-scraper</code> · 국가 <code>kr</code> · 컬렉션 <code>GROSSING</code> (매출 순위) · 게임 카테고리 상위 100위. 매일 1회 스냅샷을 저장하며(<code>server/output/</code>), 이 리포트는 그 데이터를 집계해 <code>docs/data.js</code>로 생성됩니다.</div>
+      <div id="footerGenerated"></div>
+    </footer>
+  </main>
+</div>
+
+<div id="tooltip" role="tooltip" hidden></div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var DATA = window.PLAYSTORE_DATA;
+  var app = document.querySelector('main');
+  if (!DATA) {
+    app.innerHTML = '';
+    var msg = document.createElement('p');
+    msg.textContent = '데이터를 불러오지 못했습니다. data.js가 같은 폴더에 있는지 확인해주세요.';
+    app.appendChild(msg);
+    return;
+  }
+
+  var SERIES_VARS = ['--series-1','--series-2','--series-3','--series-4','--series-5','--series-6','--series-7','--series-8'];
+  function seriesColor(i) { return getComputedStyle(document.documentElement).getPropertyValue(SERIES_VARS[i % SERIES_VARS.length]).trim(); }
+
+  function mk(tag, opts) {
+    var e = document.createElement(tag);
+    opts = opts || {};
+    if (opts.cls) e.className = opts.cls;
+    if (opts.text != null) e.textContent = opts.text;
+    if (opts.attrs) for (var k in opts.attrs) e.setAttribute(k, opts.attrs[k]);
+    if (opts.style) for (var k2 in opts.style) e.style[k2] = opts.style[k2];
+    if (opts.children) opts.children.forEach(function (c) { if (c) e.appendChild(c); });
+    return e;
+  }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function fmtMD(iso) { var p = iso.split('-'); return p[1] + '.' + p[2]; }
+  function fmtFull(iso) { var p = iso.split('-'); return p[0] + '.' + p[1] + '.' + p[2]; }
+  function fmtSigned(n) { return n > 0 ? '+' + n : String(n); }
+  function fmtPct(n) { return (Math.round(n * 10) / 10) + '%'; }
+
+  // ============================================================ header meta
+  (function renderMeta() {
+    var m = DATA.meta;
+    var row = document.getElementById('metaRow');
+    var items = [
+      ['수집 기간', fmtFull(m.firstDate) + ' ~ ' + fmtFull(m.lastDate) + ' (' + m.totalDays + '일)'],
+      ['추적된 게임 수', m.uniqueGames + '개'],
+      ['모은 스냅샷', m.totalSnapshotsParsed + '건']
+    ];
+    items.forEach(function (it) {
+      row.appendChild(mk('span', { children: [mk('b', { text: it[0] + ': ' }), document.createTextNode(it[1])] }));
+    });
+    var gen = document.getElementById('footerGenerated');
+    try {
+      var d = new Date(DATA.generatedAt);
+      gen.textContent = '리포트 생성 시각: ' + d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+    } catch (e) { gen.textContent = ''; }
+  })();
+
+  // ============================================================ KPI tiles
+  (function renderKPI() {
+    var grid = document.getElementById('kpiGrid');
+    var k = DATA.kpi, m = DATA.meta;
+    function tile(label, value, sub) {
+      return mk('div', { cls: 'kpi-tile', children: [
+        mk('div', { cls: 'kpi-label', text: label }),
+        mk('div', { cls: 'kpi-value', text: value }),
+        sub ? mk('div', { cls: 'kpi-sub', text: sub }) : null
+      ]});
+    }
+    grid.appendChild(tile('오늘의 매출 1위', k.currentNo1 ? k.currentNo1.name : '—', k.currentNo1 ? (k.currentNo1.publisher + ' · ' + k.currentNo1.genre) : ''));
+    grid.appendChild(tile('최장 1위 기록', k.longestNo1 ? k.longestNo1.days + '일' : '—', k.longestNo1 ? (k.longestNo1.name + ' · ' + k.longestNo1.publisher) : ''));
+    grid.appendChild(tile('오늘의 최다 보유 퍼블리셔', k.topPublisher ? k.topPublisher.publisher : '—', k.topPublisher ? ('Top100 중 ' + k.topPublisher.count + '개 보유') : ''));
+    grid.appendChild(tile('오늘의 최다 장르', k.topGenre ? k.topGenre.name : '—', k.topGenre ? ('Top100 중 ' + k.topGenre.count + '개 (' + k.topGenre.count + '%)') : ''));
+    grid.appendChild(tile('신작 (출시 ' + DATA.newReleaseWindowDays + '일 이내)', (k.newReleaseCount != null ? k.newReleaseCount : '—') + '개', 'Top100 중 최근 출시작 비중'));
+    grid.appendChild(tile('수집 기간', m.totalDays + '일 연속', fmtFull(m.firstDate) + ' ~ ' + fmtFull(m.lastDate)));
+  })();
+
+  // ============================================================ notable changes
+  (function renderNotable() {
+    var n = DATA.notable;
+    document.getElementById('notableSub').textContent = n.comparedTo ? (fmtFull(n.comparedTo) + ' → ' + fmtFull(DATA.meta.lastDate) + ' 대비') : '비교할 전일 데이터가 없습니다';
+
+    function row(name, rankText, deltaText, deltaCls) {
+      return mk('li', { children: [
+        mk('span', { cls: 'change-name', text: name }),
+        mk('span', { cls: 'change-rank', text: rankText }),
+        mk('span', { cls: 'delta' + (deltaCls ? ' ' + deltaCls : ''), text: deltaText })
+      ]});
+    }
+    function fillList(id, items, kind) {
+      var ul = document.getElementById(id);
+      clear(ul);
+      if (!items.length) { ul.appendChild(mk('li', { cls: 'empty-note', text: '해당 사항 없음' })); return; }
+      items.forEach(function (it) {
+        if (kind === 'mover') {
+          ul.appendChild(row(it.name, it.rank + '위', fmtSigned(it.change), it.change > 0 ? 'up' : 'down'));
+        } else if (kind === 'new') {
+          ul.appendChild(row(it.name, it.rank + '위', 'NEW', ''));
+          ul.lastChild.querySelector('.delta').classList.add('pill-new');
+          ul.lastChild.querySelector('.delta').classList.remove('delta');
+        } else if (kind === 'out') {
+          ul.appendChild(row(it.name, '이전 ' + it.rank + '위', '차트아웃', ''));
+        }
+      });
+    }
+    fillList('risersList', n.topRisers, 'mover');
+    fillList('fallersList', n.topFallers, 'mover');
+    fillList('entriesList', n.newEntries, 'new');
+    fillList('dropoutsList', n.dropouts, 'out');
+  })();
+
+  // ============================================================ steady performers
+  (function renderSteady() {
+    var tb1 = document.querySelector('#steadyTable tbody');
+    DATA.steadiest.slice(0, 8).forEach(function (g) {
+      tb1.appendChild(mk('tr', { children: [
+        mk('td', { text: g.name, style: { fontWeight: 600 } }),
+        mk('td', { text: g.publisher, style: { color: 'var(--ink-2)' } }),
+        mk('td', { text: (Math.round(g.avgRank * 10) / 10) + '위', cls: '', style: { fontFamily: 'var(--font-mono)' } }),
+        mk('td', { text: g.daysPresent + '일', style: { fontFamily: 'var(--font-mono)' } })
+      ]}));
+    });
+    var tb2 = document.querySelector('#reignTable tbody');
+    DATA.daysNo1.slice(0, 8).forEach(function (g) {
+      tb2.appendChild(mk('tr', { children: [
+        mk('td', { text: g.name, style: { fontWeight: 600 } }),
+        mk('td', { text: g.publisher, style: { color: 'var(--ink-2)' } }),
+        mk('td', { text: g.days + '일', style: { fontFamily: 'var(--font-mono)' } })
+      ]}));
+    });
+  })();
+
+  // ============================================================ new releases
+  (function renderNewReleases() {
+    var list = DATA.newReleases || [];
+    document.getElementById('newReleaseSub').textContent = '스테디셀러 반대편 — 출시 ' + DATA.newReleaseWindowDays + '일 이내에 Top100에 오른 게임 (' + list.length + '개)';
+    var tbody = document.querySelector('#newReleaseTable tbody');
+    if (list.length === 0) {
+      document.getElementById('newReleaseTable').closest('.table-scroll').hidden = true;
+      document.getElementById('newReleaseEmpty').hidden = false;
+      return;
+    }
+    list.forEach(function (r) {
+      tbody.appendChild(mk('tr', { children: [
+        mk('td', { cls: 'c-rank', text: r.rank }),
+        mk('td', { text: r.name, style: { fontWeight: 600 } }),
+        mk('td', { text: r.publisher, style: { color: 'var(--ink-2)' } }),
+        mk('td', { children: [mk('span', { cls: 'genre-tag', text: r.genre })] }),
+        mk('td', { text: r.released, style: { fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums', color: 'var(--ink-2)' } }),
+        mk('td', { text: 'D+' + r.daysSinceRelease, style: { fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums', fontWeight: 700, color: 'var(--accent)' } })
+      ]}));
+    });
+  })();
+
+  // ============================================================ tooltip helper
+  var tooltipEl = document.getElementById('tooltip');
+  function positionTooltip(clientX, clientY) {
+    var margin = 12;
+    var x = Math.min(Math.max(clientX, 80), window.innerWidth - 80);
+    var y = Math.max(clientY, 60);
+    tooltipEl.style.left = x + 'px';
+    tooltipEl.style.top = y + 'px';
+  }
+  function hideTooltip() { tooltipEl.hidden = true; }
+
+  // ============================================================ genre share bar + legend
+  (function renderGenreShare() {
+    var bar = document.getElementById('shareBar');
+    var legend = document.getElementById('shareLegend');
+    DATA.genreShareLatest.forEach(function (g, i) {
+      var color = seriesColor(i);
+      bar.appendChild(mk('div', { cls: 'share-seg', style: { flexBasis: g.count + '%', background: color } , attrs: { title: g.name + ' ' + g.count + '%' } }));
+      legend.appendChild(mk('li', { children: [
+        mk('span', { cls: 'swatch', style: { background: color } }),
+        mk('span', { cls: 'legend-name', text: g.name }),
+        mk('span', { cls: 'legend-value', text: g.count + '%' })
+      ]}));
+    });
+  })();
+
+  // ============================================================ genre trend (stacked area)
+  (function renderGenreTrend() {
+    var svg = document.getElementById('genreTrendChart');
+    var W = 720, H = 300, ML = 34, MR = 14, MT = 14, MB = 30;
+    var PW = W - ML - MR, PH = H - MT - MB;
+    var labels = DATA.genreTrend.labels, series = DATA.genreTrend.series;
+    var n = labels.length;
+    if (n < 2) { svg.appendChild(svgEl('text', { x: 20, y: 40 })).textContent = '데이터 부족'; return; }
+
+    function X(i) { return ML + (i / (n - 1)) * PW; }
+    function Y(v) { return MT + (1 - v / 100) * PH; }
+
+    // gridlines
+    [0, 25, 50, 75, 100].forEach(function (t) {
+      svg.appendChild(svgEl('line', { x1: ML, x2: ML + PW, y1: Y(t), y2: Y(t), stroke: 'var(--grid)', 'stroke-width': 1 }));
+      var lbl = svgEl('text', { x: ML - 8, y: Y(t) + 3, 'text-anchor': 'end', class: 'tick-label' });
+      lbl.textContent = t + '%';
+      svg.appendChild(lbl);
+    });
+    labels.forEach(function (d, i) {
+      var lbl = svgEl('text', { x: X(i), y: H - 8, 'text-anchor': 'middle', class: 'tick-label' });
+      lbl.textContent = fmtMD(d);
+      svg.appendChild(lbl);
+    });
+
+    // stacked bands
+    var cumPrev = new Array(n).fill(0);
+    series.forEach(function (s, si) {
+      var cumNow = cumPrev.map(function (c, i) { return c + s.values[i]; });
+      var top = cumNow.map(function (v, i) { return [X(i), Y(v)]; });
+      var bot = cumPrev.map(function (v, i) { return [X(i), Y(v)]; }).reverse();
+      var d = 'M ' + top.map(function (p) { return p.join(','); }).join(' L ') + ' L ' + bot.map(function (p) { return p.join(','); }).join(' L ') + ' Z';
+      var color = seriesColor(si);
+      svg.appendChild(svgEl('path', { d: d, fill: color, opacity: 0.55 }));
+      var edge = 'M ' + top.map(function (p) { return p.join(','); }).join(' L ');
+      svg.appendChild(svgEl('path', { d: edge, fill: 'none', stroke: color, 'stroke-width': 1.5, 'stroke-linejoin': 'round' }));
+      cumPrev = cumNow;
+    });
+
+    // crosshair + tooltip
+    var cross = svgEl('line', { x1: 0, x2: 0, y1: MT, y2: MT + PH, stroke: 'var(--baseline)', 'stroke-width': 1, visibility: 'hidden' });
+    svg.appendChild(cross);
+    var hit = svgEl('rect', { x: ML, y: MT, width: PW, height: PH, fill: 'transparent' });
+    svg.appendChild(hit);
+
+    function handleMove(evt) {
+      var rect = svg.getBoundingClientRect();
+      var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      var clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      var xUser = ((clientX - rect.left) / rect.width) * W;
+      var idx = Math.round(((xUser - ML) / PW) * (n - 1));
+      idx = Math.max(0, Math.min(n - 1, idx));
+      cross.setAttribute('x1', X(idx)); cross.setAttribute('x2', X(idx));
+      cross.setAttribute('visibility', 'visible');
+      clear(tooltipEl);
+      tooltipEl.appendChild(mk('div', { cls: 'tt-title', text: labels[idx] + ' 주' }));
+      series.map(function (s, i) { return { name: s.name, val: s.values[idx], color: seriesColor(i) }; })
+        .sort(function (a, b) { return b.val - a.val; })
+        .forEach(function (s) {
+          tooltipEl.appendChild(mk('div', { cls: 'tt-row', children: [
+            mk('span', { cls: 'tt-key', style: { background: s.color } }),
+            mk('span', { cls: 'tt-name', text: s.name }),
+            mk('span', { cls: 'tt-val', text: fmtPct(s.val) })
+          ]}));
+        });
+      tooltipEl.hidden = false;
+      positionTooltip(clientX, clientY);
+    }
+    svg.addEventListener('pointermove', handleMove);
+    svg.addEventListener('pointerleave', function () { cross.setAttribute('visibility', 'hidden'); hideTooltip(); });
+  })();
+
+  // ============================================================ publisher leaderboard
+  (function renderPublishers() {
+    var wrap = document.getElementById('publisherBars');
+    var list = DATA.publisherLeaderboard;
+    var max = list.reduce(function (m, p) { return Math.max(m, p.count); }, 1);
+    list.forEach(function (p) {
+      var row = mk('div', { cls: 'bar-row', attrs: { tabindex: '0' }, children: [
+        mk('div', { cls: 'bar-pub', text: p.publisher }),
+        mk('div', { cls: 'bar-track', children: [mk('div', { cls: 'bar-fill', style: { width: (p.count / max * 100) + '%' } })] }),
+        mk('div', { cls: 'bar-count', text: p.count + '개' })
+      ]});
+      function show(evt) {
+        clear(tooltipEl);
+        tooltipEl.appendChild(mk('div', { cls: 'tt-title', text: p.publisher }));
+        p.titles.slice(0, 8).forEach(function (t) {
+          tooltipEl.appendChild(mk('div', { cls: 'tt-row', children: [
+            mk('span', { cls: 'tt-name', text: t.name }),
+            mk('span', { cls: 'tt-val', text: t.rank + '위' })
+          ]}));
+        });
+        tooltipEl.hidden = false;
+        var r = row.getBoundingClientRect();
+        positionTooltip(evt ? evt.clientX : r.left + r.width / 2, evt ? evt.clientY : r.top);
+      }
+      row.addEventListener('pointermove', show);
+      row.addEventListener('pointerenter', show);
+      row.addEventListener('focus', function () { show(null); });
+      row.addEventListener('pointerleave', hideTooltip);
+      row.addEventListener('blur', hideTooltip);
+      wrap.appendChild(row);
+    });
+  })();
+
+  // ============================================================ rank trend (multi-line)
+  (function renderTrend() {
+    var svg = document.getElementById('trendChart');
+    var W = 960, H = 380, ML = 34, MR = 16, MT = 16, MB = 34;
+    var PW = W - ML - MR, PH = H - MT - MB;
+    var dates = DATA.dates;
+    var games = DATA.trendGames;
+    var n = dates.length;
+    var hiddenSet = {};
+
+    function X(i) { return ML + (i / (n - 1)) * PW; }
+    function Y(v) { return MT + ((v - 1) / 99) * PH; }
+
+    var gridLayer = svgEl('g', {});
+    var lineLayer = svgEl('g', {});
+    svg.appendChild(gridLayer); svg.appendChild(lineLayer);
+
+    function drawStatic() {
+      clear(gridLayer);
+      [1, 20, 40, 60, 80, 100].forEach(function (t) {
+        gridLayer.appendChild(svgEl('line', { x1: ML, x2: ML + PW, y1: Y(t), y2: Y(t), stroke: 'var(--grid)', 'stroke-width': 1 }));
+        var lbl = svgEl('text', { x: ML - 8, y: Y(t) + 3, 'text-anchor': 'end', class: 'tick-label' });
+        lbl.textContent = t + '위';
+        gridLayer.appendChild(lbl);
+      });
+      var tickEvery = Math.max(1, Math.round(n / 8));
+      dates.forEach(function (d, i) {
+        if (i % tickEvery !== 0 && i !== n - 1) return;
+        var lbl = svgEl('text', { x: X(i), y: H - 10, 'text-anchor': 'middle', class: 'tick-label' });
+        lbl.textContent = fmtMD(d);
+        gridLayer.appendChild(lbl);
+      });
+    }
+    function drawLines() {
+      clear(lineLayer);
+      games.forEach(function (g, gi) {
+        if (hiddenSet[gi]) return;
+        var color = seriesColor(gi);
+        var d = '';
+        var open = false;
+        g.ranks.forEach(function (v, i) {
+          if (v == null) { open = false; return; }
+          d += (open ? ' L ' : ' M ') + X(i) + ',' + Y(v);
+          open = true;
+        });
+        lineLayer.appendChild(svgEl('path', { d: d, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+        var lastIdx = -1;
+        for (var i = g.ranks.length - 1; i >= 0; i--) { if (g.ranks[i] != null) { lastIdx = i; break; } }
+        if (lastIdx >= 0) {
+          lineLayer.appendChild(svgEl('circle', { cx: X(lastIdx), cy: Y(g.ranks[lastIdx]), r: 4.5, fill: color, stroke: 'var(--surface)', 'stroke-width': 2 }));
+        }
+      });
+    }
+    drawStatic(); drawLines();
+
+    // crosshair + tooltip
+    var cross = svgEl('line', { x1: 0, x2: 0, y1: MT, y2: MT + PH, stroke: 'var(--baseline)', 'stroke-width': 1, visibility: 'hidden' });
+    svg.appendChild(cross);
+    var hit = svgEl('rect', { x: ML, y: MT, width: PW, height: PH, fill: 'transparent' });
+    svg.appendChild(hit);
+    function handleMove(evt) {
+      var rect = svg.getBoundingClientRect();
+      var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      var clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      var xUser = ((clientX - rect.left) / rect.width) * W;
+      var idx = Math.round(((xUser - ML) / PW) * (n - 1));
+      idx = Math.max(0, Math.min(n - 1, idx));
+      cross.setAttribute('x1', X(idx)); cross.setAttribute('x2', X(idx));
+      cross.setAttribute('visibility', 'visible');
+      clear(tooltipEl);
+      tooltipEl.appendChild(mk('div', { cls: 'tt-title', text: dates[idx] }));
+      games.forEach(function (g, gi) {
+        if (hiddenSet[gi]) return;
+        var v = g.ranks[idx];
+        tooltipEl.appendChild(mk('div', { cls: 'tt-row', children: [
+          mk('span', { cls: 'tt-key', style: { background: seriesColor(gi) } }),
+          mk('span', { cls: 'tt-name', text: g.name }),
+          mk('span', { cls: 'tt-val', text: v == null ? '–' : (v + '위') })
+        ]}));
+      });
+      tooltipEl.hidden = false;
+      positionTooltip(clientX, clientY);
+    }
+    svg.addEventListener('pointermove', handleMove);
+    svg.addEventListener('pointerleave', function () { cross.setAttribute('visibility', 'hidden'); hideTooltip(); });
+
+    // legend
+    var legend = document.getElementById('trendLegend');
+    games.forEach(function (g, gi) {
+      var current = g.ranks[g.ranks.length - 1];
+      var btn = mk('button', { attrs: { type: 'button' }, children: [
+        mk('span', { cls: 'swatch', style: { background: seriesColor(gi) } }),
+        document.createTextNode(g.name + ' '),
+        mk('span', { cls: 'lg-rank', text: current != null ? current + '위' : '–' })
+      ]});
+      btn.addEventListener('click', function () {
+        hiddenSet[gi] = !hiddenSet[gi];
+        btn.classList.toggle('dim', !!hiddenSet[gi]);
+        drawLines();
+      });
+      legend.appendChild(mk('li', { children: [btn] }));
+    });
+    var resetLi = mk('li', {});
+    var resetBtn = mk('button', { cls: 'reset', attrs: { type: 'button' }, text: '전체 보기' });
+    resetBtn.addEventListener('click', function () {
+      hiddenSet = {};
+      Array.prototype.forEach.call(legend.querySelectorAll('button'), function (b) { b.classList.remove('dim'); });
+      drawLines();
+    });
+    resetLi.appendChild(resetBtn);
+    legend.appendChild(resetLi);
+  })();
+
+  // ============================================================ detail table
+  (function renderDetail() {
+    var rows = DATA.detailTable;
+    document.getElementById('detailSub').textContent = fmtFull(DATA.meta.lastDate) + ' 기준 전체 게임 매출 순위 (' + rows.length + '개)';
+
+    var genreSelect = document.getElementById('genreSelect');
+    var genres = Array.from(new Set(rows.map(function (r) { return r.genre; }))).sort();
+    genreSelect.appendChild(mk('option', { attrs: { value: '' }, text: '전체 장르' }));
+    genres.forEach(function (g) { genreSelect.appendChild(mk('option', { attrs: { value: g }, text: g })); });
+
+    var searchInput = document.getElementById('searchInput');
+    var tbody = document.querySelector('#detailTable tbody');
+    var countEl = document.getElementById('filterCount');
+    var sortKey = 'rank', sortDir = 1;
+
+    function sparkline(values) {
+      var w = 92, h = 28, pad = 3;
+      var pts = values.map(function (v, i) { return { i: i, v: v }; }).filter(function (p) { return p.v != null; });
+      var svg = svgEl('svg', { viewBox: '0 0 ' + w + ' ' + h, width: w, height: h });
+      if (pts.length < 2) {
+        svg.appendChild(svgEl('line', { x1: pad, x2: w - pad, y1: h / 2, y2: h / 2, stroke: 'var(--baseline)', 'stroke-width': 1.5 }));
+        return svg;
+      }
+      var vs = pts.map(function (p) { return p.v; });
+      var lo = Math.min.apply(null, vs), hi = Math.max.apply(null, vs);
+      if (hi - lo < 8) { var mid = (hi + lo) / 2; lo = mid - 4; hi = mid + 4; }
+      var n = values.length;
+      function X(i) { return pad + (i / (n - 1)) * (w - pad * 2); }
+      function Y(v) { return pad + (1 - (v - lo) / (hi - lo)) * (h - pad * 2); }
+      var d = '', open = false;
+      values.forEach(function (v, i) {
+        if (v == null) { open = false; return; }
+        d += (open ? ' L ' : ' M ') + X(i) + ',' + Y(v);
+        open = true;
+      });
+      svg.appendChild(svgEl('path', { d: d, fill: 'none', stroke: 'var(--ink-muted)', 'stroke-width': 1.75, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+      var last = pts[pts.length - 1];
+      svg.appendChild(svgEl('circle', { cx: X(last.i), cy: Y(last.v), r: 2.6, fill: 'var(--accent)' }));
+      return svg;
+    }
+
+    function changeCell(r) {
+      if (r.isNew) return mk('span', { cls: 'pill-new', text: 'NEW' });
+      if (r.change == null) return mk('span', { text: '–', style: { color: 'var(--ink-muted)' } });
+      if (r.change === 0) return mk('span', { text: '–', style: { color: 'var(--ink-muted)' } });
+      var up = r.change > 0;
+      return mk('span', { style: { color: up ? 'var(--success)' : 'var(--critical)' }, text: (up ? '▲ ' : '▼ ') + Math.abs(r.change) });
+    }
+
+    function applyAndRender() {
+      var q = searchInput.value.trim().toLowerCase();
+      var g = genreSelect.value;
+      var filtered = rows.filter(function (r) {
+        if (g && r.genre !== g) return false;
+        if (q && r.name.toLowerCase().indexOf(q) === -1 && r.publisher.toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+      filtered.sort(function (a, b) {
+        var av = a[sortKey], bv = b[sortKey];
+        if (sortKey === 'change') { av = av == null ? -999 : av; bv = bv == null ? -999 : bv; }
+        if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+        return (av - bv) * sortDir;
+      });
+      clear(tbody);
+      filtered.forEach(function (r) {
+        var tr = mk('tr', { children: [
+          mk('td', { cls: 'c-rank', text: r.rank }),
+          mk('td', { cls: 'c-change', children: [changeCell(r)] }),
+          mk('td', { cls: 'c-name', text: r.name, attrs: { title: r.name } }),
+          mk('td', { cls: 'c-pub', text: r.publisher, attrs: { title: r.publisher } }),
+          mk('td', { cls: 'c-genre' }),
+          mk('td', { cls: 'c-spark' })
+        ]});
+        tr.children[4].appendChild(mk('span', { cls: 'genre-tag', text: r.genre }));
+        if (r.isNewRelease) {
+          tr.children[4].appendChild(mk('span', {
+            cls: 'pill-release',
+            text: '신작',
+            attrs: { title: (r.released || '') + ' 출시 · D+' + r.daysSinceRelease }
+          }));
+        }
+        tr.children[5].appendChild(sparkline(r.spark));
+        tbody.appendChild(tr);
+      });
+      countEl.textContent = filtered.length + ' / ' + rows.length + '개';
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('#detailTable thead th[data-key]'), function (th) {
+      th.addEventListener('click', function () {
+        var key = th.getAttribute('data-key');
+        if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = key === 'rank' ? 1 : -1; }
+        Array.prototype.forEach.call(document.querySelectorAll('#detailTable thead th .arrow'), function (a) { a.remove(); });
+        th.appendChild(mk('span', { cls: 'arrow', text: sortDir === 1 ? '↑' : '↓' }));
+        applyAndRender();
+      });
+    });
+    searchInput.addEventListener('input', applyAndRender);
+    genreSelect.addEventListener('change', applyAndRender);
+    applyAndRender();
+  })();
+
+})();
+</script>
+</body>
+</html>

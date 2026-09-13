@@ -1,15 +1,15 @@
-name: Play Store Games Scrape
+name: Play Store Intl Markets Scrape
 
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '0 14 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  scrape-games-excel:
+  scrape-intl:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,13 +21,13 @@ jobs:
       - name: Patch google-play-scraper bug
         run: sed -i 's/searchArray === null || searchArray.length === 0/searchArray === null || searchArray === undefined || searchArray.length === 0/' node_modules/google-play-scraper/lib/utils/mappingHelpers.js
         working-directory: ./server
-      - run: node index.js --ci-games-excel
+      - run: node index.js --ci-intl
         working-directory: ./server
-      - name: Rebuild analysis dashboard
-        run: node analyze.js
+      - name: Rebuild global comparison dashboard
+        run: node analyze-intl.js
         working-directory: ./server
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add server/output/ docs/
-          git diff --quiet --staged || (git commit -m "Auto scrape games Excel $(date '+%Y-%m-%d %H:%M')" && git pull --rebase --autostash && git push)
+          git add server/output/intl/ docs/global-data.js
+          git diff --quiet --staged || (git commit -m "Auto scrape intl markets $(date '+%Y-%m-%d %H:%M')" && git pull --rebase --autostash && git push)

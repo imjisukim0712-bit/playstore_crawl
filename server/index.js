@@ -28,8 +28,11 @@ function dateDir() {
   ].join('');
 }
 
-async function scrapeRankings(collection, category) {
-  const params = { collection, num: 100, country: 'kr', lang: 'ko', fullDetail: true };
+async function scrapeRankings(collection, category, opts) {
+  opts = opts || {};
+  const country = opts.country || 'kr';
+  const lang = opts.lang || 'ko';
+  const params = { collection, num: 100, country, lang, fullDetail: true };
   if (category) params.category = category;
   const apps = await gplay.list(params);
   const label = category ? '게임' : '일반';
@@ -39,14 +42,30 @@ async function scrapeRankings(collection, category) {
     publisher: app.developer || app.developerId || 'Unknown',
     category: label,
     subCategory: app.genre || '',
+    genreId: app.genreId || '',
+    appId: app.appId || '',
+    released: app.released || '',
   }));
 }
 
-async function saveJSON(collection, category, typeLabel) {
+function toRow(r) {
+  return {
+    순위: r.rank,
+    '앱 이름': r.name,
+    퍼블리셔: r.publisher,
+    카테고리: r.category,
+    '세부 카테고리': r.subCategory,
+    장르ID: r.genreId,
+    앱ID: r.appId,
+    출시일: r.released,
+  };
+}
+
+async function saveJSON(collection, category, typeLabel, opts) {
   console.log(`\nScraping ${typeLabel}...`);
-  const rankings = await scrapeRankings(collection, category);
-  const subDir = path.join(outputDir, dateDir());
-  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir);
+  const rankings = await scrapeRankings(collection, category, opts);
+  const subDir = (opts && opts.subDir) || path.join(outputDir, dateDir());
+  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
   const fileName = `${timestamp()}.json`;
   const filePath = path.join(subDir, fileName);
   fs.writeFileSync(filePath, JSON.stringify({ timestamp: Date.now(), data: rankings }, null, 2), 'utf-8');
@@ -54,21 +73,42 @@ async function saveJSON(collection, category, typeLabel) {
   return filePath;
 }
 
-async function saveExcel(collection, category, typeLabel) {
+async function saveExcel(collection, category, typeLabel, opts) {
   console.log(`\nScraping ${typeLabel}...`);
-  const rankings = await scrapeRankings(collection, category);
-  const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category, '세부 카테고리': r.subCategory }));
+  const rankings = await scrapeRankings(collection, category, opts);
+  const data = rankings.map(toRow);
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-  ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }];
-  const subDir = path.join(outputDir, dateDir());
-  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir);
+  ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 }];
+  const subDir = (opts && opts.subDir) || path.join(outputDir, dateDir());
+  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
   const fileName = `${timestamp()}.xlsx`;
   const filePath = path.join(subDir, fileName);
   XLSX.writeFile(wb, filePath);
   console.log(`Saved: ${fileName} (${rankings.length} items)`);
   return filePath;
+}
+
+// --- International markets (revenue-chart comparison) ---
+// Russia has no usable GROSSING chart: Google Play billing (paid transactions)
+// has been unavailable there since 2022, so the scraper's response for that
+// collection carries no games cluster at all. TOP_FREE (popularity) is tracked
+// there instead, and clearly labeled as a different metric from the other markets.
+const INTL_MARKETS = [
+  { code: 'us', country: 'us', lang: 'en', label: '미국', collection: 'GROSSING' },
+  { code: 'jp', country: 'jp', lang: 'ja', label: '일본', collection: 'GROSSING' },
+  { code: 'ru', country: 'ru', lang: 'ru', label: '러시아', collection: 'TOP_FREE' },
+];
+
+async function saveExcelIntl(market) {
+  const collection = gplay.collection[market.collection];
+  const subDir = path.join(outputDir, 'intl', market.code, dateDir());
+  return saveExcel(collection, gplay.category.GAME, `${market.label} 게임 (${market.collection})`, {
+    country: market.country,
+    lang: market.lang,
+    subDir,
+  });
 }
 
 function showMenu() {
@@ -127,11 +167,11 @@ function startServer() {
   app.get('/api/rankings/excel', async (req, res) => {
     try {
       const rankings = await scrapeRankings(gplay.collection.GROSSING);
-      const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category, '세부 카테고리': r.subCategory }));
+      const data = rankings.map(toRow);
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }];
+      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 }];
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
@@ -153,11 +193,11 @@ function startServer() {
   app.get('/api/rankings/games/excel', async (req, res) => {
     try {
       const rankings = await scrapeRankings(gplay.collection.GROSSING, gplay.category.GAME);
-      const data = rankings.map(r => ({ 순위: r.rank, '앱 이름': r.name, 퍼블리셔: r.publisher, 카테고리: r.category, '세부 카테고리': r.subCategory }));
+      const data = rankings.map(toRow);
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }];
+      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 }];
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
@@ -196,6 +236,19 @@ if (args.includes('--ci')) {
   (async () => {
     console.log('[CI] Auto scrape games Excel started');
     await saveExcel(gplay.collection.GROSSING, gplay.category.GAME, '게임');
+    console.log('[CI] Done');
+    process.exit(0);
+  })();
+} else if (args.includes('--ci-intl')) {
+  (async () => {
+    console.log('[CI] Auto scrape international markets started');
+    for (const market of INTL_MARKETS) {
+      try {
+        await saveExcelIntl(market);
+      } catch (err) {
+        console.error(`[CI] ${market.label} (${market.code}) failed:`, err.message);
+      }
+    }
     console.log('[CI] Done');
     process.exit(0);
   })();
