@@ -487,7 +487,7 @@
     rows.forEach(function (r) {
       var tr = mk('tr', { children: [
         mk('td', { cls: 'c-rank', text: r.currentRank != null ? r.currentRank : '–' }),
-        mk('td', { cls: 'name', style: { fontWeight: 600 }, children: [gameNameEl(r.name, r.icon, r.appId, null, true)] }),
+        mk('td', { cls: 'name', style: { fontWeight: 600 }, children: [gameNameEl(r.name, r.icon, r.appId)] }),
         mk('td', { text: r.publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { cls: 'num', text: r.avgRank != null ? (Math.round(r.avgRank * 10) / 10) : '–' }),
         mk('td', { cls: 'num', text: r.daysPresent }),
