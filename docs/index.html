@@ -233,6 +233,7 @@
   table.detail tbody tr:last-child td { border-bottom: none; }
   table.detail tbody tr:hover { background: var(--accent-wash); }
   td.c-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   td.c-name { font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   td.c-pub { color: var(--ink-2); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   td.c-change { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -266,6 +267,18 @@
   <main>
     <!-- KPI -->
     <section class="kpi-grid" id="kpiGrid" aria-label="핵심 지표"></section>
+
+    <!-- Quality / monetization benchmark -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">품질 · 수익화 벤치마크</h2>
+          <p class="panel-sub" id="benchmarkSub">오늘 Top100 게임 기준</p>
+        </div>
+      </div>
+      <div class="kpi-grid" id="benchmarkGrid" style="margin: 0;"></div>
+      <p class="panel-note">장르별 벤치마크는 <a href="genre.html">장르별 분석</a>에서 확인할 수 있습니다.</p>
+    </section>
 
     <!-- Notable changes -->
     <section class="panel">
@@ -399,6 +412,7 @@
               <th data-key="name">게임</th>
               <th data-key="publisher">퍼블리셔</th>
               <th data-key="genre">장르</th>
+              <th data-key="score">평점</th>
               <th>최근 30일 추이</th>
             </tr>
           </thead>
@@ -494,6 +508,24 @@
     grid.appendChild(tile('수집 기간', m.totalDays + '일 연속', fmtFull(m.firstDate) + ' ~ ' + fmtFull(m.lastDate)));
   })();
 
+  // ============================================================ quality / monetization benchmark
+  (function renderBenchmark() {
+    var b = DATA.qualityBenchmark;
+    var grid = document.getElementById('benchmarkGrid');
+    if (!b) return;
+    function tile(label, value, sub) {
+      return mk('div', { cls: 'kpi-tile', children: [
+        mk('div', { cls: 'kpi-label', text: label }),
+        mk('div', { cls: 'kpi-value', text: value }),
+        sub ? mk('div', { cls: 'kpi-sub', text: sub }) : null
+      ]});
+    }
+    grid.appendChild(tile('평균 평점', b.avgScore != null ? b.avgScore : '—', b.scoreSampleSize + '개 게임 평균'));
+    grid.appendChild(tile('IAP 채택률', b.iapPct + '%', 'Top100 중 인앱결제 제공 비율'));
+    grid.appendChild(tile('광고 포함 비율', b.adSupportedPct + '%', 'Top100 중 광고를 포함한 비율'));
+    grid.appendChild(tile('무과금 모델', b.noMonetizationCount + '개', 'IAP·광고 모두 없는 게임 수'));
+  })();
+
   // ============================================================ notable changes
   (function renderNotable() {
     var n = DATA.notable;
@@ -506,6 +538,23 @@
         mk('span', { cls: 'delta' + (deltaCls ? ' ' + deltaCls : ''), text: deltaText })
       ]});
     }
+    function attachPatchNoteTooltip(li, item) {
+      if (!item.recentChanges) return;
+      li.style.cursor = 'help';
+      function show(evt) {
+        clear(tooltipEl);
+        tooltipEl.appendChild(mk('div', { cls: 'tt-title', text: item.name + ' · 최근 업데이트' }));
+        tooltipEl.appendChild(mk('div', { style: { maxWidth: '260px', whiteSpace: 'normal', color: 'var(--tooltip-ink-2)' }, text: item.recentChanges.length > 220 ? item.recentChanges.slice(0, 220) + '…' : item.recentChanges }));
+        tooltipEl.hidden = false;
+        var r = li.getBoundingClientRect();
+        positionTooltip(evt ? evt.clientX : r.left + 20, evt ? evt.clientY : r.top);
+      }
+      li.addEventListener('pointerenter', show);
+      li.addEventListener('pointermove', show);
+      li.addEventListener('focus', function () { show(null); });
+      li.addEventListener('pointerleave', hideTooltip);
+      li.addEventListener('blur', hideTooltip);
+    }
     function fillList(id, items, kind) {
       var ul = document.getElementById(id);
       clear(ul);
@@ -513,6 +562,7 @@
       items.forEach(function (it) {
         if (kind === 'mover') {
           ul.appendChild(row(it.name, it.rank + '위', fmtSigned(it.change), it.change > 0 ? 'up' : 'down'));
+          if (it.recentChanges) { ul.lastChild.setAttribute('tabindex', '0'); attachPatchNoteTooltip(ul.lastChild, it); }
         } else if (kind === 'new') {
           ul.appendChild(row(it.name, it.rank + '위', 'NEW', ''));
           ul.lastChild.querySelector('.delta').classList.add('pill-new');
@@ -879,7 +929,7 @@
       });
       filtered.sort(function (a, b) {
         var av = a[sortKey], bv = b[sortKey];
-        if (sortKey === 'change') { av = av == null ? -999 : av; bv = bv == null ? -999 : bv; }
+        if (sortKey === 'change' || sortKey === 'score') { av = av == null ? -999 : av; bv = bv == null ? -999 : bv; }
         if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
         return (av - bv) * sortDir;
       });
@@ -891,6 +941,7 @@
           mk('td', { cls: 'c-name', text: r.name, attrs: { title: r.name } }),
           mk('td', { cls: 'c-pub', text: r.publisher, attrs: { title: r.publisher } }),
           mk('td', { cls: 'c-genre' }),
+          mk('td', { cls: 'num', text: r.score != null ? r.score.toFixed(1) : '–' }),
           mk('td', { cls: 'c-spark' })
         ]});
         tr.children[4].appendChild(mk('span', { cls: 'genre-tag', text: r.genre }));
@@ -901,7 +952,7 @@
             attrs: { title: (r.released || '') + ' 출시 · D+' + r.daysSinceRelease }
           }));
         }
-        tr.children[5].appendChild(sparkline(r.spark));
+        tr.children[6].appendChild(sparkline(r.spark));
         tbody.appendChild(tr);
       });
       countEl.textContent = filtered.length + ' / ' + rows.length + '개';
