@@ -134,7 +134,7 @@
   .meta-row { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
   .meta-row b { color: var(--ink-2); font-weight: 600; }
 
-  main { display: flex; flex-direction: column; gap: 30px; padding-block: 22px 60px; min-width: 0; }
+  main { display: flex; flex-direction: column; gap: 38px; padding-block: 26px 60px; min-width: 0; }
   main > * { min-width: 0; }
 
   /* ---------- panel/card ---------- */
@@ -147,10 +147,14 @@
   /* ---------- KPI tiles ---------- */
   .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; min-width: 0; }
   .kpi-grid > * { min-width: 0; }
-  .kpi-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .kpi-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 7px; min-width: 0; }
   .kpi-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.02em; }
   .kpi-value { font-size: clamp(19px, 2.6vw, 24px); font-weight: 700; color: var(--ink); overflow-wrap: break-word; }
   .kpi-sub { font-size: 12.5px; color: var(--ink-2); }
+  .kpi-tile.hero { grid-column: span 2; }
+  .kpi-tile.hero .kpi-value { font-size: clamp(21px, 3vw, 28px); }
+  .kpi-tile.hero .game-icon { width: 36px; height: 36px; border-radius: 10px; margin-top: 0; }
+  @media (max-width: 480px) { .kpi-tile.hero { grid-column: span 1; } }
 
   /* ---------- grid layouts ---------- */
   .cols-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -162,7 +166,7 @@
   .change-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 16px; background: var(--surface-2); }
   .change-card h3 { font-size: 14px; font-weight: 700; font-family: var(--font-body); display: flex; align-items: center; gap: 6px; }
   .change-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-  .change-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--border); }
+  .change-list li { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border); }
   .change-list li:first-child { border-top: none; }
   .change-name { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .change-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--ink-muted); }
@@ -172,6 +176,9 @@
   .pill-new { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-wash); border-radius: 999px; padding: 2px 8px; }
   .pill-release { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 7px; margin-left: 5px; }
   .empty-note { font-size: 13px; color: var(--ink-muted); padding: 8px 0; }
+  .hint-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--ink-muted); padding: 2px 2px; }
+  .hint-line strong { color: var(--ink-2); font-weight: 600; }
+  .hint-line code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
 
   /* ---------- genre share bar ---------- */
   .share-bar { display: flex; width: 100%; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--page-bg); }
@@ -186,8 +193,8 @@
   .legend-value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink); }
 
   /* ---------- publisher bars ---------- */
-  .bar-rows { display: flex; flex-direction: column; gap: 8px; }
-  .bar-row { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 10px; padding: 3px 0; border-radius: 8px; cursor: default; }
+  .bar-rows { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 10px; padding: 5px 4px; border-radius: 8px; cursor: default; }
   .bar-row:focus-visible, .bar-row:hover { background: var(--accent-wash); outline: none; }
   .bar-pub { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bar-track { height: 18px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
@@ -232,7 +239,7 @@
   table.detail thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
   table.detail thead th .arrow { font-size: 10px; color: var(--accent); margin-left: 3px; }
   table.detail thead th:hover { color: var(--ink); }
-  table.detail tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  table.detail tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
   table.detail tbody tr:last-child td { border-bottom: none; }
   table.detail tbody tr:hover { background: var(--accent-wash); }
   td.c-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -275,19 +282,10 @@
   </header>
 
   <main>
-    <!-- KPI -->
-    <section class="kpi-grid" id="kpiGrid" aria-label="핵심 지표"></section>
-
-    <!-- Quality / monetization benchmark -->
-    <section class="panel">
-      <div class="panel-head">
-        <div>
-          <h2 class="panel-title">품질 · 수익화 벤치마크</h2>
-          <p class="panel-sub" id="benchmarkSub">오늘 Top100 게임 기준</p>
-        </div>
-      </div>
-      <div class="kpi-grid" id="benchmarkGrid" style="margin: 0;"></div>
-      <p class="panel-note">장르별 벤치마크는 <a href="genre.html">장르별 분석</a>에서 확인할 수 있습니다.</p>
+    <!-- KPI + quality/monetization benchmark, one combined strip -->
+    <section aria-label="핵심 지표 및 품질·수익화 벤치마크">
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <p class="panel-note" style="margin-top: 16px;">평균 평점 이하 4개는 오늘 Top100 게임의 품질·수익화 벤치마크입니다 · 장르별 벤치마크는 <a href="genre.html">장르별 분석</a>에서 확인할 수 있습니다.</p>
     </section>
 
     <!-- Notable changes -->
@@ -389,27 +387,25 @@
     </section>
 
     <!-- Watchlist -->
-    <section class="panel">
+    <p id="watchlistHint" class="hint-line" hidden>
+      <strong>관심 게임 워치리스트</strong>
+      아직 등록된 게임이 없습니다 — <code>server/watchlist.json</code>에 게임 이름이나 퍼블리셔를 추가하면 다음 갱신부터 여기 따로 표시됩니다.
+    </p>
+    <section id="watchlistPanel" class="panel" hidden>
       <div class="panel-head">
         <div>
           <h2 class="panel-title">관심 게임 워치리스트</h2>
           <p class="panel-sub">직접 등록한 경쟁작·벤치마킹 대상만 따로 모아봅니다</p>
         </div>
       </div>
-      <div id="watchlistEmpty" class="panel-note" style="margin-top: 0;">
-        아직 등록된 게임이 없습니다. 저장소의 <code style="font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px;">server/watchlist.json</code> 파일에 게임 이름이나 퍼블리셔를 추가하면 다음 갱신부터 여기 따로 표시됩니다. 예:
-        <br><code style="font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; display: inline-block; margin-top: 6px;">{ "games": ["리니지M"], "publishers": ["NEXON Company"] }</code>
-      </div>
-      <div id="watchlistContent" hidden>
-        <div class="cols-2">
-          <div>
-            <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">게임</h3>
-            <ul class="change-list" id="watchGamesList"></ul>
-          </div>
-          <div>
-            <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">퍼블리셔</h3>
-            <ul class="change-list" id="watchPublishersList"></ul>
-          </div>
+      <div class="cols-2">
+        <div>
+          <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">게임</h3>
+          <ul class="change-list" id="watchGamesList"></ul>
+        </div>
+        <div>
+          <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">퍼블리셔</h3>
+          <ul class="change-list" id="watchPublishersList"></ul>
         </div>
       </div>
     </section>
@@ -514,10 +510,12 @@
   }
   // Returns an <a> (Play Store link, opens a new tab) when we know the appId,
   // else a plain <span> -- same visual shape either way so callers don't care.
-  function gameNameEl(name, cls, suffixText) {
+  // noIcon skips the thumbnail (used in long listings, e.g. the Top100 table)
+  // while still keeping the click-through link.
+  function gameNameEl(name, cls, suffixText, noIcon) {
     var ref = gameRef(name);
     var kids = [];
-    if (ref.icon) kids.push(mk('img', { cls: 'game-icon', attrs: { src: ref.icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }));
+    if (ref.icon && !noIcon) kids.push(mk('img', { cls: 'game-icon', attrs: { src: ref.icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }));
     kids.push(mk('span', { cls: 'gl-text', text: suffixText ? (name + ' ' + suffixText) : name }));
     if (ref.url) {
       return mk('a', { cls: 'game-link' + (cls ? ' ' + cls : ''), attrs: { href: ref.url, target: '_blank', rel: 'noopener noreferrer', title: name + ' — Play 스토어에서 보기' }, children: kids });
@@ -548,17 +546,17 @@
   (function renderKPI() {
     var grid = document.getElementById('kpiGrid');
     var k = DATA.kpi, m = DATA.meta;
-    function tile(label, value, sub, gameName) {
+    function tile(label, value, sub, gameName, hero) {
       var valueEl = gameName
         ? mk('div', { cls: 'kpi-value', children: [gameNameEl(gameName)] })
         : mk('div', { cls: 'kpi-value', text: value });
-      return mk('div', { cls: 'kpi-tile', children: [
+      return mk('div', { cls: 'kpi-tile' + (hero ? ' hero' : ''), children: [
         mk('div', { cls: 'kpi-label', text: label }),
         valueEl,
         sub ? mk('div', { cls: 'kpi-sub', text: sub }) : null
       ]});
     }
-    grid.appendChild(tile('오늘의 매출 1위', k.currentNo1 ? k.currentNo1.name : '—', k.currentNo1 ? (k.currentNo1.publisher + ' · ' + k.currentNo1.genre) : '', k.currentNo1 ? k.currentNo1.name : null));
+    grid.appendChild(tile('오늘의 매출 1위', k.currentNo1 ? k.currentNo1.name : '—', k.currentNo1 ? (k.currentNo1.publisher + ' · ' + k.currentNo1.genre) : '', k.currentNo1 ? k.currentNo1.name : null, true));
     grid.appendChild(tile('최장 1위 기록', k.longestNo1 ? k.longestNo1.days + '일' : '—', k.longestNo1 ? (k.longestNo1.name + ' · ' + k.longestNo1.publisher) : ''));
     grid.appendChild(tile('오늘의 최다 보유 퍼블리셔', k.topPublisher ? k.topPublisher.publisher : '—', k.topPublisher ? ('Top100 중 ' + k.topPublisher.count + '개 보유') : ''));
     grid.appendChild(tile('오늘의 최다 장르', k.topGenre ? k.topGenre.name : '—', k.topGenre ? ('Top100 중 ' + k.topGenre.count + '개 (' + k.topGenre.count + '%)') : ''));
@@ -569,7 +567,7 @@
   // ============================================================ quality / monetization benchmark
   (function renderBenchmark() {
     var b = DATA.qualityBenchmark;
-    var grid = document.getElementById('benchmarkGrid');
+    var grid = document.getElementById('kpiGrid');
     if (!b) return;
     function tile(label, value, sub) {
       return mk('div', { cls: 'kpi-tile', children: [
@@ -819,8 +817,8 @@
   (function renderWatchlist() {
     var wl = DATA.watchlist || { games: [], publishers: [] };
     var hasAny = wl.games.length > 0 || wl.publishers.length > 0;
-    document.getElementById('watchlistEmpty').hidden = hasAny;
-    document.getElementById('watchlistContent').hidden = !hasAny;
+    document.getElementById('watchlistHint').hidden = hasAny;
+    document.getElementById('watchlistPanel').hidden = !hasAny;
     if (!hasAny) return;
 
     var gamesList = document.getElementById('watchGamesList');
@@ -1051,7 +1049,7 @@
         var tr = mk('tr', { children: [
           mk('td', { cls: 'c-rank', text: r.rank }),
           mk('td', { cls: 'c-change', children: [changeCell(r)] }),
-          mk('td', { cls: 'c-name', children: [gameNameEl(r.name)] }),
+          mk('td', { cls: 'c-name', children: [gameNameEl(r.name, null, null, true)] }),
           mk('td', { cls: 'c-pub', text: r.publisher, attrs: { title: r.publisher } }),
           mk('td', { cls: 'c-genre' }),
           mk('td', { cls: 'num', text: r.score != null ? r.score.toFixed(1) : '–' }),
