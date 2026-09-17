@@ -284,6 +284,92 @@ const newReleases = detailTable
   .filter(r => r.isNewRelease)
   .sort((a, b) => a.daysSinceRelease - b.daysSinceRelease);
 
+// --- 12. Per-genre detail dataset (drives docs/genre.html) ---
+// Unlike genreShareLatest/genreTrend (folded to a fixed 7+"기타" for the stacked
+// chart's color budget), this covers every genre that has ever appeared -- a
+// reader drilling into one genre isn't limited by how many colors a chart can hold.
+const genreFirstTrackedIdx = dates.findIndex((d, i) => snapshots[i].rows.some(r => r.genre));
+const genreTrackedDates = genreFirstTrackedIdx >= 0 ? dates.slice(genreFirstTrackedIdx) : [];
+const distinctGenres = [...new Set(gameList.map(g => g.genre).filter(Boolean))].sort();
+
+const genreDetail = {};
+distinctGenres.forEach(genreName => {
+  const genreGames = gameList.filter(g => g.genre === genreName);
+
+  // Daily share of Top100 (%) across the whole genre-tracked window -- a single
+  // line covering every day genre data exists, not the main page's 9-week
+  // resample (that one only exists to keep 8 stacked series legible at once).
+  const dailyShare = genreTrackedDates.map((date, i) => {
+    const di = genreFirstTrackedIdx + i;
+    return snapshots[di].rows.filter(r => r.genre === genreName).length;
+  });
+
+  // Concentration: of all "genre-days" ever logged for this genre, what share
+  // belongs to its 3 most-persistent games. An HHI-style dominance read, not a
+  // same-day rank cutoff (which would always read 3/N regardless of dominance).
+  const byPresence = [...genreGames].sort((a, b) => b.ranks.filter(r => r != null).length - a.ranks.filter(r => r != null).length);
+  const totalGenreDays = byPresence.reduce((sum, g) => sum + g.ranks.filter(r => r != null).length, 0);
+  const top3Days = byPresence.slice(0, 3).reduce((sum, g) => sum + g.ranks.filter(r => r != null).length, 0);
+  const concentrationPct = totalGenreDays > 0 ? Math.round((top3Days / totalGenreDays) * 1000) / 10 : 0;
+
+  // Every game ever seen in this genre, not just today's Top100.
+  const gamesOut = genreGames.map(g => {
+    const present = g.ranks.filter(r => r != null);
+    const avgRank = present.length ? present.reduce((a, b) => a + b, 0) / present.length : null;
+    const currentRank = rankOf(g, latestIdx);
+    const releasedDate = parseReleased(g.released);
+    const daysSinceRelease = releasedDate ? Math.round((latestDate - releasedDate) / 86400000) : null;
+    return {
+      name: g.name,
+      publisher: g.publisher,
+      currentRank,
+      avgRank,
+      daysPresent: present.length,
+      released: g.released || '',
+      daysSinceRelease,
+      isNewRelease: daysSinceRelease != null && daysSinceRelease >= 0 && daysSinceRelease <= NEW_RELEASE_DAYS,
+    };
+  }).sort((a, b) => {
+    if (a.currentRank != null && b.currentRank != null) return a.currentRank - b.currentRank;
+    if (a.currentRank != null) return -1;
+    if (b.currentRank != null) return 1;
+    return a.avgRank - b.avgRank;
+  });
+  const currentlyCharting = gamesOut.filter(g => g.currentRank != null);
+
+  // Publishers within this genre, by distinct game count (all-time).
+  const pubMap = new Map();
+  genreGames.forEach(g => {
+    if (!pubMap.has(g.publisher)) pubMap.set(g.publisher, { publisher: g.publisher, gameCount: 0, currentlyCharting: 0 });
+    const p = pubMap.get(g.publisher);
+    p.gameCount += 1;
+    if (rankOf(g, latestIdx) != null) p.currentlyCharting += 1;
+  });
+  const publishers = [...pubMap.values()].sort((a, b) => b.gameCount - a.gameCount || b.currentlyCharting - a.currentlyCharting);
+
+  genreDetail[genreName] = {
+    name: genreName,
+    datesTracked: genreTrackedDates,
+    dailyShare,
+    today: {
+      count: currentlyCharting.length,
+      avgRank: currentlyCharting.length ? Math.round((currentlyCharting.reduce((s, g) => s + g.currentRank, 0) / currentlyCharting.length) * 10) / 10 : null,
+    },
+    concentration: { pct: concentrationPct, top3: byPresence.slice(0, 3).map(g => ({ name: g.name, daysPresent: g.ranks.filter(r => r != null).length })) },
+    totalGamesEver: genreGames.length,
+    games: gamesOut,
+    publishers,
+    newReleases: gamesOut.filter(g => g.isNewRelease).sort((a, b) => a.daysSinceRelease - b.daysSinceRelease),
+  };
+});
+
+const genreDetailOut = {
+  generatedAt: new Date().toISOString(),
+  lastDate: dates[latestIdx],
+  genreList: distinctGenres.map(name => ({ name, count: genreDetail[name].today.count })).sort((a, b) => b.count - a.count),
+  genres: genreDetail,
+};
+
 // --- 11. Assemble + write ---
 const data = {
   generatedAt: new Date().toISOString(),
@@ -322,5 +408,9 @@ if (!fs.existsSync(docsDir)) fs.mkdirSync(docsDir, { recursive: true });
 const outPath = path.join(docsDir, 'data.js');
 fs.writeFileSync(outPath, `window.PLAYSTORE_DATA = ${JSON.stringify(data)};\n`, 'utf-8');
 
+const genreOutPath = path.join(docsDir, 'genre-data.js');
+fs.writeFileSync(genreOutPath, `window.GENRE_DATA = ${JSON.stringify(genreDetailOut)};\n`, 'utf-8');
+
 console.log(`Parsed ${candidateFiles.length} snapshots -> ${dates.length} days (${dates[0]} ~ ${dates[latestIdx]}), ${gameList.length} unique games.`);
 console.log(`Wrote ${outPath} (${(fs.statSync(outPath).size / 1024).toFixed(1)} KB)`);
+console.log(`Wrote ${genreOutPath} (${(fs.statSync(genreOutPath).size / 1024).toFixed(1)} KB) -- ${distinctGenres.length} genres`);
