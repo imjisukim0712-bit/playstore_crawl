@@ -97,14 +97,38 @@ dates.forEach((date, di) => {
     const genre = String(r['세부 카테고리'] || '').trim();
     const category = String(r['카테고리'] || '').trim();
     const released = String(r['출시일'] || '').trim();
+    const score = typeof r['평점'] === 'number' ? r['평점'] : null;
+    const ratings = typeof r['평점수'] === 'number' ? r['평점수'] : null;
+    const installsText = String(r['설치수'] || '').trim();
+    const minInstalls = typeof r['최소설치'] === 'number' ? r['최소설치'] : null;
+    const offersIAP = r['IAP여부'] === true;
+    const iapRange = String(r['IAP가격대'] || '').trim();
+    const adSupported = r['광고포함'] === true;
+    const icon = String(r['아이콘'] || '').trim();
+    const recentChanges = String(r['업데이트내용'] || '').trim();
     if (!name || !rank || category !== '게임') continue;
-    if (!games.has(name)) games.set(name, { name, publisher, genre, released: '', ranks: new Array(dates.length).fill(null) });
+    if (!games.has(name)) {
+      games.set(name, {
+        name, publisher, genre, released: '', ranks: new Array(dates.length).fill(null),
+        score: null, ratings: null, installsText: '', minInstalls: null, offersIAP: false, iapRange: '', adSupported: false, icon: '', recentChanges: '',
+      });
+    }
     const g = games.get(name);
     g.ranks[di] = rank;
-    if (publisher) g.publisher = publisher; // keep the most recently seen publisher/genre/release-date label
+    // keep the most recently seen label for anything that can drift over time
+    if (publisher) g.publisher = publisher;
     if (genre) g.genre = genre;
     if (released) g.released = released;
-    snap.push({ rank, name, publisher, genre, released });
+    if (score != null) g.score = score;
+    if (ratings != null) g.ratings = ratings;
+    if (installsText) g.installsText = installsText;
+    if (minInstalls != null) g.minInstalls = minInstalls;
+    g.offersIAP = offersIAP;
+    if (iapRange) g.iapRange = iapRange;
+    g.adSupported = adSupported;
+    if (icon) g.icon = icon;
+    if (recentChanges) g.recentChanges = recentChanges;
+    snap.push({ rank, name, publisher, genre, released, score, ratings, installsText, minInstalls, offersIAP, iapRange, adSupported, icon, recentChanges });
   }
   snap.sort((a, b) => a.rank - b.rank);
   snapshots.push({ date, time, count: snap.length });
@@ -137,7 +161,7 @@ function rankOf(game, idx) {
 // --- 4. Notable changes: risers / fallers / new entries / dropouts (latest vs previous day) ---
 const presentBoth = gameList.filter(g => rankOf(g, latestIdx) != null && rankOf(g, idxPrevDay) != null);
 const movers = presentBoth
-  .map(g => ({ name: g.name, publisher: g.publisher, genre: g.genre, rank: g.ranks[latestIdx], change: g.ranks[idxPrevDay] - g.ranks[latestIdx] }))
+  .map(g => ({ name: g.name, publisher: g.publisher, genre: g.genre, rank: g.ranks[latestIdx], change: g.ranks[idxPrevDay] - g.ranks[latestIdx], recentChanges: g.recentChanges || '' }))
   .filter(m => m.change !== 0);
 const topRisers = [...movers].sort((a, b) => b.change - a.change).slice(0, TOP_MOVERS_N);
 const topFallers = [...movers].sort((a, b) => a.change - b.change).slice(0, TOP_MOVERS_N);
@@ -250,6 +274,27 @@ const publisherLeaderboard = [...publisherMap.values()]
   .slice(0, PUBLISHER_TOP_N)
   .map(p => ({ ...p, titles: p.titles.sort((a, b) => a.rank - b.rank) }));
 
+// --- 8b. Quality & monetization benchmark (latest snapshot, Top100-wide) ---
+function benchmarkOf(rows) {
+  const scored = rows.map(r => games.get(r.name)).filter(g => g && g.score != null);
+  const n = rows.length || 1;
+  const iapCount = rows.filter(r => games.get(r.name) && games.get(r.name).offersIAP).length;
+  const adCount = rows.filter(r => games.get(r.name) && games.get(r.name).adSupported).length;
+  const freeNoAdsNoIap = rows.filter(r => {
+    const g = games.get(r.name);
+    return g && !g.offersIAP && !g.adSupported;
+  }).length;
+  return {
+    sampleSize: rows.length,
+    avgScore: scored.length ? Math.round((scored.reduce((s, g) => s + g.score, 0) / scored.length) * 100) / 100 : null,
+    scoreSampleSize: scored.length,
+    iapPct: Math.round((iapCount / n) * 1000) / 10,
+    adSupportedPct: Math.round((adCount / n) * 1000) / 10,
+    noMonetizationCount: freeNoAdsNoIap,
+  };
+}
+const qualityBenchmark = benchmarkOf(latestSnap);
+
 // --- 9. Rank trend: default top N games by current rank, full history ---
 const trendGames = [...gameList]
   .filter(g => rankOf(g, latestIdx) != null)
@@ -277,6 +322,13 @@ const detailTable = latestSnap.map(row => {
     released: row.released || g.released || '',
     daysSinceRelease,
     isNewRelease: daysSinceRelease != null && daysSinceRelease >= 0 && daysSinceRelease <= NEW_RELEASE_DAYS,
+    score: g.score,
+    ratings: g.ratings,
+    installsText: g.installsText,
+    offersIAP: g.offersIAP,
+    iapRange: g.iapRange,
+    adSupported: g.adSupported,
+    icon: g.icon,
     spark: g.ranks.slice(sparkStart),
   };
 });
@@ -328,6 +380,11 @@ distinctGenres.forEach(genreName => {
       released: g.released || '',
       daysSinceRelease,
       isNewRelease: daysSinceRelease != null && daysSinceRelease >= 0 && daysSinceRelease <= NEW_RELEASE_DAYS,
+      score: g.score,
+      installsText: g.installsText,
+      offersIAP: g.offersIAP,
+      adSupported: g.adSupported,
+      icon: g.icon,
     };
   }).sort((a, b) => {
     if (a.currentRank != null && b.currentRank != null) return a.currentRank - b.currentRank;
@@ -360,6 +417,8 @@ distinctGenres.forEach(genreName => {
     games: gamesOut,
     publishers,
     newReleases: gamesOut.filter(g => g.isNewRelease).sort((a, b) => a.daysSinceRelease - b.daysSinceRelease),
+    benchmark: benchmarkOf(genreGames.filter(g => rankOf(g, latestIdx) != null)),
+    moodboard: currentlyCharting.filter(g => g.icon).slice(0, 12).map(g => ({ name: g.name, icon: g.icon, currentRank: g.currentRank })),
   };
 });
 
@@ -401,6 +460,7 @@ const data = {
   trendGames,
   newReleaseWindowDays: NEW_RELEASE_DAYS,
   newReleases,
+  qualityBenchmark,
   detailTable,
 };
 

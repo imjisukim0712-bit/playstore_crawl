@@ -28,6 +28,10 @@ function dateDir() {
   ].join('');
 }
 
+function stripHtml(s) {
+  return String(s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
+}
+
 async function scrapeRankings(collection, category, opts) {
   opts = opts || {};
   const country = opts.country || 'kr';
@@ -45,6 +49,18 @@ async function scrapeRankings(collection, category, opts) {
     genreId: app.genreId || '',
     appId: app.appId || '',
     released: app.released || '',
+    score: typeof app.score === 'number' ? app.score : null,
+    ratings: typeof app.ratings === 'number' ? app.ratings : null,
+    reviews: typeof app.reviews === 'number' ? app.reviews : null,
+    histogram: app.histogram || null,
+    installsText: app.installs || '',
+    minInstalls: typeof app.minInstalls === 'number' ? app.minInstalls : null,
+    price: typeof app.price === 'number' ? app.price : null,
+    offersIAP: !!app.offersIAP,
+    iapRange: app.IAPRange || '',
+    adSupported: !!app.adSupported,
+    icon: app.icon || '',
+    recentChanges: stripHtml(app.recentChanges),
   }));
 }
 
@@ -58,6 +74,18 @@ function toRow(r) {
     장르ID: r.genreId,
     앱ID: r.appId,
     출시일: r.released,
+    평점: r.score,
+    평점수: r.ratings,
+    리뷰수: r.reviews,
+    평점분포: r.histogram ? JSON.stringify(r.histogram) : '',
+    설치수: r.installsText,
+    최소설치: r.minInstalls,
+    가격: r.price,
+    IAP여부: r.offersIAP,
+    IAP가격대: r.iapRange,
+    광고포함: r.adSupported,
+    아이콘: r.icon,
+    업데이트내용: r.recentChanges,
   };
 }
 
@@ -80,7 +108,11 @@ async function saveExcel(collection, category, typeLabel, opts) {
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-  ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 }];
+  ws['!cols'] = [
+    { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+    { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
+    { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
+  ];
   const subDir = (opts && opts.subDir) || path.join(outputDir, dateDir());
   if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
   const fileName = `${timestamp()}.xlsx`;
@@ -171,7 +203,11 @@ function startServer() {
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 }];
+      ws['!cols'] = [
+        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+        { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
+        { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
+      ];
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
@@ -197,7 +233,11 @@ function startServer() {
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [{ wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 }];
+      ws['!cols'] = [
+        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+        { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
+        { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
+      ];
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
