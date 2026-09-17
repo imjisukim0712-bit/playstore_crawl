@@ -1049,7 +1049,7 @@
         var tr = mk('tr', { children: [
           mk('td', { cls: 'c-rank', text: r.rank }),
           mk('td', { cls: 'c-change', children: [changeCell(r)] }),
-          mk('td', { cls: 'c-name', children: [gameNameEl(r.name, null, null, true)] }),
+          mk('td', { cls: 'c-name', children: [gameNameEl(r.name)] }),
           mk('td', { cls: 'c-pub', text: r.publisher, attrs: { title: r.publisher } }),
           mk('td', { cls: 'c-genre' }),
           mk('td', { cls: 'num', text: r.score != null ? r.score.toFixed(1) : '–' }),
