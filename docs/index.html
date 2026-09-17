@@ -205,6 +205,9 @@
   .chart-legend button.dim { opacity: 0.38; }
   .chart-legend button:hover { border-color: var(--accent); }
   .chart-legend .reset { color: var(--accent); font-weight: 600; border-style: dashed; }
+  .chart-legend li { display: inline-flex; align-items: center; gap: 3px; }
+  .lg-open { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--border); color: var(--ink-muted); text-decoration: none; font-size: 13px; flex-shrink: 0; }
+  .lg-open:hover { border-color: var(--accent); color: var(--accent); }
   .axis-label, .tick-label { fill: var(--ink-muted); font-size: 10.5px; font-family: var(--font-mono); }
 
   /* ---------- tooltip ---------- */
@@ -238,6 +241,13 @@
   td.c-pub { color: var(--ink-2); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   td.c-change { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; }
   .genre-tag { display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+  .game-icon { width: 20px; height: 20px; border-radius: 6px; object-fit: cover; flex-shrink: 0; vertical-align: middle; background: var(--surface-2); }
+  .game-link { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; min-width: 0; max-width: 100%; }
+  .game-link:hover .gl-text { text-decoration: underline; }
+  .game-link .gl-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kpi-value .game-link { align-items: flex-start; }
+  .kpi-value .game-link .gl-text { white-space: normal; overflow-wrap: break-word; }
+  .kpi-value .game-icon { margin-top: 2px; }
   td.c-spark svg { display: block; }
 
   /* ---------- footer ---------- */
@@ -496,6 +506,25 @@
   function fmtSigned(n) { return n > 0 ? '+' + n : String(n); }
   function fmtPct(n) { return (Math.round(n * 10) / 10) + '%'; }
 
+  // ---- game icon + Play Store link, used everywhere a game name is shown ----
+  function playUrl(appId) { return appId ? ('https://play.google.com/store/apps/details?id=' + encodeURIComponent(appId) + '&hl=ko&gl=kr') : null; }
+  function gameRef(name) {
+    var info = (DATA.gameIndex && DATA.gameIndex[name]) || {};
+    return { icon: info.icon || '', appId: info.appId || '', url: playUrl(info.appId) };
+  }
+  // Returns an <a> (Play Store link, opens a new tab) when we know the appId,
+  // else a plain <span> -- same visual shape either way so callers don't care.
+  function gameNameEl(name, cls, suffixText) {
+    var ref = gameRef(name);
+    var kids = [];
+    if (ref.icon) kids.push(mk('img', { cls: 'game-icon', attrs: { src: ref.icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }));
+    kids.push(mk('span', { cls: 'gl-text', text: suffixText ? (name + ' ' + suffixText) : name }));
+    if (ref.url) {
+      return mk('a', { cls: 'game-link' + (cls ? ' ' + cls : ''), attrs: { href: ref.url, target: '_blank', rel: 'noopener noreferrer', title: name + ' — Play 스토어에서 보기' }, children: kids });
+    }
+    return mk('span', { cls: 'game-link' + (cls ? ' ' + cls : ''), children: kids });
+  }
+
   // ============================================================ header meta
   (function renderMeta() {
     var m = DATA.meta;
@@ -519,14 +548,17 @@
   (function renderKPI() {
     var grid = document.getElementById('kpiGrid');
     var k = DATA.kpi, m = DATA.meta;
-    function tile(label, value, sub) {
+    function tile(label, value, sub, gameName) {
+      var valueEl = gameName
+        ? mk('div', { cls: 'kpi-value', children: [gameNameEl(gameName)] })
+        : mk('div', { cls: 'kpi-value', text: value });
       return mk('div', { cls: 'kpi-tile', children: [
         mk('div', { cls: 'kpi-label', text: label }),
-        mk('div', { cls: 'kpi-value', text: value }),
+        valueEl,
         sub ? mk('div', { cls: 'kpi-sub', text: sub }) : null
       ]});
     }
-    grid.appendChild(tile('오늘의 매출 1위', k.currentNo1 ? k.currentNo1.name : '—', k.currentNo1 ? (k.currentNo1.publisher + ' · ' + k.currentNo1.genre) : ''));
+    grid.appendChild(tile('오늘의 매출 1위', k.currentNo1 ? k.currentNo1.name : '—', k.currentNo1 ? (k.currentNo1.publisher + ' · ' + k.currentNo1.genre) : '', k.currentNo1 ? k.currentNo1.name : null));
     grid.appendChild(tile('최장 1위 기록', k.longestNo1 ? k.longestNo1.days + '일' : '—', k.longestNo1 ? (k.longestNo1.name + ' · ' + k.longestNo1.publisher) : ''));
     grid.appendChild(tile('오늘의 최다 보유 퍼블리셔', k.topPublisher ? k.topPublisher.publisher : '—', k.topPublisher ? ('Top100 중 ' + k.topPublisher.count + '개 보유') : ''));
     grid.appendChild(tile('오늘의 최다 장르', k.topGenre ? k.topGenre.name : '—', k.topGenre ? ('Top100 중 ' + k.topGenre.count + '개 (' + k.topGenre.count + '%)') : ''));
@@ -559,7 +591,7 @@
 
     function row(name, rankText, deltaText, deltaCls) {
       return mk('li', { children: [
-        mk('span', { cls: 'change-name', text: name }),
+        gameNameEl(name, 'change-name'),
         mk('span', { cls: 'change-rank', text: rankText }),
         mk('span', { cls: 'delta' + (deltaCls ? ' ' + deltaCls : ''), text: deltaText })
       ]});
@@ -609,7 +641,7 @@
     var tb1 = document.querySelector('#steadyTable tbody');
     DATA.steadiest.slice(0, 8).forEach(function (g) {
       tb1.appendChild(mk('tr', { children: [
-        mk('td', { text: g.name, style: { fontWeight: 600 } }),
+        mk('td', { style: { fontWeight: 600 }, children: [gameNameEl(g.name)] }),
         mk('td', { text: g.publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { text: (Math.round(g.avgRank * 10) / 10) + '위', cls: '', style: { fontFamily: 'var(--font-mono)' } }),
         mk('td', { text: g.daysPresent + '일', style: { fontFamily: 'var(--font-mono)' } })
@@ -618,7 +650,7 @@
     var tb2 = document.querySelector('#reignTable tbody');
     DATA.daysNo1.slice(0, 8).forEach(function (g) {
       tb2.appendChild(mk('tr', { children: [
-        mk('td', { text: g.name, style: { fontWeight: 600 } }),
+        mk('td', { style: { fontWeight: 600 }, children: [gameNameEl(g.name)] }),
         mk('td', { text: g.publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { text: g.days + '일', style: { fontFamily: 'var(--font-mono)' } })
       ]}));
@@ -638,7 +670,7 @@
     list.forEach(function (r) {
       tbody.appendChild(mk('tr', { children: [
         mk('td', { cls: 'c-rank', text: r.rank }),
-        mk('td', { text: r.name, style: { fontWeight: 600 } }),
+        mk('td', { style: { fontWeight: 600 }, children: [gameNameEl(r.name)] }),
         mk('td', { text: r.publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { children: [mk('span', { cls: 'genre-tag', text: r.genre })] }),
         mk('td', { text: r.released, style: { fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums', color: 'var(--ink-2)' } }),
@@ -808,7 +840,7 @@
       var deltaText = g.change == null ? '' : (g.change === 0 ? '–' : fmtSigned(g.change));
       var deltaCls = g.change > 0 ? 'up' : (g.change < 0 ? 'down' : '');
       gamesList.appendChild(mk('li', { children: [
-        mk('span', { cls: 'change-name', text: g.name + ' · ' + g.publisher }),
+        gameNameEl(g.name, 'change-name', '· ' + g.publisher),
         mk('span', { cls: 'change-rank', text: rankText }),
         deltaText ? mk('span', { cls: 'delta' + (deltaCls ? ' ' + deltaCls : ''), text: deltaText }) : null
       ]}));
@@ -925,8 +957,10 @@
     var legend = document.getElementById('trendLegend');
     games.forEach(function (g, gi) {
       var current = g.ranks[g.ranks.length - 1];
+      var ref = gameRef(g.name);
       var btn = mk('button', { attrs: { type: 'button' }, children: [
         mk('span', { cls: 'swatch', style: { background: seriesColor(gi) } }),
+        ref.icon ? mk('img', { cls: 'game-icon', style: { width: '16px', height: '16px' }, attrs: { src: ref.icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }) : null,
         document.createTextNode(g.name + ' '),
         mk('span', { cls: 'lg-rank', text: current != null ? current + '위' : '–' })
       ]});
@@ -935,7 +969,8 @@
         btn.classList.toggle('dim', !!hiddenSet[gi]);
         drawLines();
       });
-      legend.appendChild(mk('li', { children: [btn] }));
+      var openLink = ref.url ? mk('a', { cls: 'lg-open', attrs: { href: ref.url, target: '_blank', rel: 'noopener noreferrer', title: g.name + ' — Play 스토어에서 보기' }, text: '↗' }) : null;
+      legend.appendChild(mk('li', { children: [btn, openLink] }));
     });
     var resetLi = mk('li', {});
     var resetBtn = mk('button', { cls: 'reset', attrs: { type: 'button' }, text: '전체 보기' });
@@ -1016,7 +1051,7 @@
         var tr = mk('tr', { children: [
           mk('td', { cls: 'c-rank', text: r.rank }),
           mk('td', { cls: 'c-change', children: [changeCell(r)] }),
-          mk('td', { cls: 'c-name', text: r.name, attrs: { title: r.name } }),
+          mk('td', { cls: 'c-name', children: [gameNameEl(r.name)] }),
           mk('td', { cls: 'c-pub', text: r.publisher, attrs: { title: r.publisher } }),
           mk('td', { cls: 'c-genre' }),
           mk('td', { cls: 'num', text: r.score != null ? r.score.toFixed(1) : '–' }),

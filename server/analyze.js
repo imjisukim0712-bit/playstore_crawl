@@ -96,6 +96,7 @@ dates.forEach((date, di) => {
     const publisher = String(r['퍼블리셔'] || '').trim() || 'Unknown';
     const genre = String(r['세부 카테고리'] || '').trim();
     const category = String(r['카테고리'] || '').trim();
+    const appId = String(r['앱ID'] || '').trim();
     const released = String(r['출시일'] || '').trim();
     const score = typeof r['평점'] === 'number' ? r['평점'] : null;
     const ratings = typeof r['평점수'] === 'number' ? r['평점수'] : null;
@@ -110,7 +111,7 @@ dates.forEach((date, di) => {
     if (!name || !rank || category !== '게임') continue;
     if (!games.has(name)) {
       games.set(name, {
-        name, publisher, genre, released: '', ranks: new Array(dates.length).fill(null),
+        name, publisher, genre, appId: '', released: '', ranks: new Array(dates.length).fill(null),
         score: null, ratings: null, installsText: '', minInstalls: null, offersIAP: false, iapRange: '', adSupported: false, icon: '', recentChanges: '', subGenre: '',
       });
     }
@@ -119,6 +120,7 @@ dates.forEach((date, di) => {
     // keep the most recently seen label for anything that can drift over time
     if (publisher) g.publisher = publisher;
     if (genre) g.genre = genre;
+    if (appId) g.appId = appId;
     if (released) g.released = released;
     if (score != null) g.score = score;
     if (ratings != null) g.ratings = ratings;
@@ -356,7 +358,7 @@ const watchedGames = watchlistConfig.games.map(name => {
   const prevRank = idxPrevDay >= 0 ? rankOf(g, idxPrevDay) : null;
   return {
     name, found: true,
-    publisher: g.publisher, genre: genreLabel(g.genre),
+    publisher: g.publisher, genre: genreLabel(g.genre), appId: g.appId || '',
     currentRank, change: currentRank != null && prevRank != null ? prevRank - currentRank : null,
     score: g.score, released: g.released || '',
     spark: g.ranks.slice(sparkStart),
@@ -369,7 +371,7 @@ const watchedPublishers = watchlistConfig.publishers.map(publisher => {
   return {
     publisher, found: true,
     count: rows.length,
-    titles: rows.map(r => ({ name: r.name, rank: r.rank })).sort((a, b) => a.rank - b.rank),
+    titles: rows.map(r => ({ name: r.name, appId: (games.get(r.name) || {}).appId || '', rank: r.rank })).sort((a, b) => a.rank - b.rank),
   };
 });
 
@@ -423,6 +425,7 @@ distinctGenres.forEach(genreName => {
       offersIAP: g.offersIAP,
       adSupported: g.adSupported,
       icon: g.icon,
+      appId: g.appId || '',
       subGenre: g.subGenre || '',
     };
   }).sort((a, b) => {
@@ -451,13 +454,13 @@ distinctGenres.forEach(genreName => {
       count: currentlyCharting.length,
       avgRank: currentlyCharting.length ? Math.round((currentlyCharting.reduce((s, g) => s + g.currentRank, 0) / currentlyCharting.length) * 10) / 10 : null,
     },
-    concentration: { pct: concentrationPct, top3: byPresence.slice(0, 3).map(g => ({ name: g.name, daysPresent: g.ranks.filter(r => r != null).length })) },
+    concentration: { pct: concentrationPct, top3: byPresence.slice(0, 3).map(g => ({ name: g.name, appId: g.appId || '', daysPresent: g.ranks.filter(r => r != null).length })) },
     totalGamesEver: genreGames.length,
     games: gamesOut,
     publishers,
     newReleases: gamesOut.filter(g => g.isNewRelease).sort((a, b) => a.daysSinceRelease - b.daysSinceRelease),
     benchmark: benchmarkOf(genreGames.filter(g => rankOf(g, latestIdx) != null)),
-    moodboard: currentlyCharting.filter(g => g.icon).slice(0, 12).map(g => ({ name: g.name, icon: g.icon, currentRank: g.currentRank })),
+    moodboard: currentlyCharting.filter(g => g.icon).slice(0, 12).map(g => ({ name: g.name, icon: g.icon, appId: g.appId, currentRank: g.currentRank })),
     subGenreBreakdown: (() => {
       // Sourced from each game's own store listing (see server/index.js
       // classifySubGenre), not guessed -- so coverage is partial by design.
@@ -476,6 +479,7 @@ const genreDetailOut = {
   lastDate: dates[latestIdx],
   genreList: distinctGenres.map(name => ({ name, count: genreDetail[name].today.count })).sort((a, b) => b.count - a.count),
   genres: genreDetail,
+  gameIndex: Object.fromEntries(gameList.filter(g => g.icon || g.appId).map(g => [g.name, { icon: g.icon || '', appId: g.appId || '' }])),
 };
 
 // --- 11. Assemble + write ---
@@ -512,6 +516,10 @@ const data = {
   qualityBenchmark,
   watchlist: { games: watchedGames, publishers: watchedPublishers },
   detailTable,
+  // name -> {icon, appId} for every game ever seen, so any list that only
+  // carries a name (movers, steady performers, trend legend, ...) can still
+  // show the icon and link out to the Play Store listing.
+  gameIndex: Object.fromEntries(gameList.filter(g => g.icon || g.appId).map(g => [g.name, { icon: g.icon || '', appId: g.appId || '' }])),
 };
 
 if (!fs.existsSync(docsDir)) fs.mkdirSync(docsDir, { recursive: true });

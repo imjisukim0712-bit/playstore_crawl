@@ -79,6 +79,14 @@
   .market-card .mc-no1-label { font-size: 11.5px; color: var(--ink-muted); }
   .market-card .mc-no1 { font-weight: 700; font-size: 16px; }
   .market-card .mc-sub { font-size: 12.5px; color: var(--ink-2); }
+
+  .game-icon { width: 20px; height: 20px; border-radius: 6px; object-fit: cover; flex-shrink: 0; vertical-align: middle; background: var(--surface-2); }
+  .game-link { display: inline-flex; align-items: center; gap: 6px; color: inherit; text-decoration: none; min-width: 0; max-width: 100%; }
+  .game-link:hover .gl-text { text-decoration: underline; }
+  .game-link .gl-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mc-no1 .game-link { align-items: flex-start; }
+  .mc-no1 .game-link .gl-text { white-space: normal; overflow-wrap: break-word; }
+  .mc-no1 .game-icon { margin-top: 2px; }
   .market-card .mc-note { font-size: 11.5px; color: var(--ink-muted); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 2px; }
 
   .market-rows { display: flex; flex-direction: column; gap: 18px; }
@@ -220,6 +228,18 @@
   }
   function fmtFull(iso) { if (!iso) return ''; var p = iso.split('-'); return p[0] + '.' + p[1] + '.' + p[2]; }
 
+  function playUrl(appId) { return appId ? ('https://play.google.com/store/apps/details?id=' + encodeURIComponent(appId) + '&hl=ko&gl=kr') : null; }
+  function gameNameEl(name, icon, appId, cls) {
+    var url = playUrl(appId);
+    var kids = [];
+    if (icon) kids.push(mk('img', { cls: 'game-icon', attrs: { src: icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }));
+    kids.push(mk('span', { cls: 'gl-text', text: name }));
+    if (url) {
+      return mk('a', { cls: 'game-link' + (cls ? ' ' + cls : ''), attrs: { href: url, target: '_blank', rel: 'noopener noreferrer', title: name + ' — Play 스토어에서 보기' }, children: kids });
+    }
+    return mk('span', { cls: 'game-link' + (cls ? ' ' + cls : ''), children: kids });
+  }
+
   (function renderMeta() {
     var row = document.getElementById('metaRow');
     var kr = DATA.markets.find(function (m) { return m.code === 'kr'; });
@@ -244,7 +264,7 @@
           mk('span', { cls: 'mc-metric', text: m.metricLabel })
         ]}),
         mk('div', { cls: 'mc-no1-label', text: '오늘의 1위' }),
-        mk('div', { cls: 'mc-no1', text: top1 ? top1.name : '–' }),
+        mk('div', { cls: 'mc-no1', children: top1 ? [gameNameEl(top1.name, top1.icon, top1.appId)] : [document.createTextNode('–')] }),
         mk('div', { cls: 'mc-sub', text: top1 ? (top1.publisher + ' · ' + top1.genre) : '' }),
         m.note ? mk('div', { cls: 'mc-note', text: m.note }) : null
       ]}));
@@ -291,7 +311,7 @@
         ]}));
       });
       tbody.appendChild(mk('tr', { children: [
-        mk('td', { text: h.entries[0].name, style: { fontWeight: 600 }, attrs: { title: h.entries[0].name } }),
+        mk('td', { style: { fontWeight: 600 }, children: [gameNameEl(h.entries[0].name, h.icon, h.appId)] }),
         mk('td', { text: h.entries[0].publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { children: [flagsEl] })
       ]}));
@@ -317,7 +337,7 @@
       m.top.forEach(function (t) {
         list.appendChild(mk('li', { children: [
           mk('span', { cls: 'top-rank', text: t.rank }),
-          mk('span', { cls: 'top-name', text: t.name, attrs: { title: t.name } }),
+          mk('span', { cls: 'top-name', attrs: { title: t.name }, children: [gameNameEl(t.name, t.icon, t.appId)] }),
           mk('span', { cls: 'top-genre', text: t.genre })
         ]}));
       });
