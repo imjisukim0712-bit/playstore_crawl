@@ -66,7 +66,7 @@
   .genre-pill.active .cnt { color: rgba(255,255,255,0.75); }
   .genre-pill.empty { opacity: 0.55; }
 
-  main { display: flex; flex-direction: column; gap: 28px; padding-block: 24px 60px; min-width: 0; }
+  main { display: flex; flex-direction: column; gap: 34px; padding-block: 26px 60px; min-width: 0; }
   main > * { min-width: 0; }
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px 22px 26px; box-shadow: var(--shadow); }
   .panel > .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 16px; }
@@ -276,10 +276,10 @@
     var id = appId || idx.appId || '';
     return { icon: ic, appId: id, url: playUrl(id) };
   }
-  function gameNameEl(name, icon, appId, cls) {
+  function gameNameEl(name, icon, appId, cls, noIcon) {
     var ref = gameRef(name, icon, appId);
     var kids = [];
-    if (ref.icon) kids.push(mk('img', { cls: 'game-icon', attrs: { src: ref.icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }));
+    if (ref.icon && !noIcon) kids.push(mk('img', { cls: 'game-icon', attrs: { src: ref.icon, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' } }));
     kids.push(mk('span', { cls: 'gl-text', text: name }));
     if (ref.url) {
       return mk('a', { cls: 'game-link' + (cls ? ' ' + cls : ''), attrs: { href: ref.url, target: '_blank', rel: 'noopener noreferrer', title: name + ' — Play 스토어에서 보기' }, children: kids });
@@ -487,7 +487,7 @@
     rows.forEach(function (r) {
       var tr = mk('tr', { children: [
         mk('td', { cls: 'c-rank', text: r.currentRank != null ? r.currentRank : '–' }),
-        mk('td', { cls: 'name', style: { fontWeight: 600 }, children: [gameNameEl(r.name, r.icon, r.appId)] }),
+        mk('td', { cls: 'name', style: { fontWeight: 600 }, children: [gameNameEl(r.name, r.icon, r.appId, null, true)] }),
         mk('td', { text: r.publisher, style: { color: 'var(--ink-2)' } }),
         mk('td', { cls: 'num', text: r.avgRank != null ? (Math.round(r.avgRank * 10) / 10) : '–' }),
         mk('td', { cls: 'num', text: r.daysPresent }),
