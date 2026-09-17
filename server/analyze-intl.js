@@ -79,6 +79,7 @@ function loadMarketHistory(market) {
         genreId: String(r['장르ID'] || '').trim(),
         genreText: String(r['세부 카테고리'] || '').trim(),
         appId: String(r['앱ID'] || '').trim(),
+        icon: String(r['아이콘'] || '').trim(),
       }))
       .filter(r => r.name && r.rank)
       .sort((a, b) => a.rank - b.rank);
@@ -123,17 +124,23 @@ function genreShareFor(snap) {
 }
 
 // --- Cross-market presence: same appId charting in 2+ markets right now ---
-const appIndex = new Map(); // appId -> [{marketCode, marketLabel, rank, name, publisher}]
+const appIndex = new Map(); // appId -> [{marketCode, marketLabel, rank, name, publisher, icon}]
 available.forEach(m => {
   m.latest.forEach(r => {
     if (!r.appId) return;
     if (!appIndex.has(r.appId)) appIndex.set(r.appId, []);
-    appIndex.get(r.appId).push({ market: m.code, marketLabel: m.label, flag: m.flag, rank: r.rank, name: r.name, publisher: r.publisher });
+    appIndex.get(r.appId).push({ market: m.code, marketLabel: m.label, flag: m.flag, rank: r.rank, name: r.name, publisher: r.publisher, icon: r.icon || '' });
   });
 });
 const globalHits = [...appIndex.entries()]
   .filter(([, entries]) => entries.length >= 2)
-  .map(([appId, entries]) => ({ appId, entries: entries.sort((a, b) => a.rank - b.rank), marketCount: entries.length, bestRank: Math.min(...entries.map(e => e.rank)) }))
+  .map(([appId, entries]) => ({
+    appId,
+    icon: (entries.find(e => e.icon) || {}).icon || '',
+    entries: entries.sort((a, b) => a.rank - b.rank),
+    marketCount: entries.length,
+    bestRank: Math.min(...entries.map(e => e.rank)),
+  }))
   .sort((a, b) => b.marketCount - a.marketCount || a.bestRank - b.bestRank);
 
 // --- Publisher cross-market reach (by publisher name, looser than appId) ---
@@ -163,7 +170,7 @@ const data = {
     note: m.note || null,
     date: m.latestDate,
     daysTracked: m.dates.length,
-    top: m.latest.slice(0, 10).map(r => ({ rank: r.rank, name: r.name, publisher: r.publisher, genre: genreLabelOf(r.genreId, r.genreText) })),
+    top: m.latest.slice(0, 10).map(r => ({ rank: r.rank, name: r.name, publisher: r.publisher, genre: genreLabelOf(r.genreId, r.genreText), appId: r.appId || '', icon: r.icon || '' })),
     genreShare: genreShareFor(m.latest),
   })),
   globalHits: globalHits.slice(0, 20),
