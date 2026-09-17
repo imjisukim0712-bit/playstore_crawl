@@ -101,6 +101,14 @@
   .swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
   .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  .table-scroll-tall { max-height: 620px; overflow-y: auto; }
+
+  summary.panel-head { cursor: pointer; list-style: none; }
+  summary.panel-head::-webkit-details-marker { display: none; }
+  details.panel:not([open]) > summary.panel-head { margin-bottom: 0; }
+  summary.panel-head:hover h2.panel-title { color: var(--accent); }
+  .panel-toggle { flex-shrink: 0; align-self: center; color: var(--ink-muted); font-size: 13px; transition: transform 0.15s ease; }
+  details.panel[open] > summary.panel-head .panel-toggle { transform: rotate(180deg); }
   table.detail { width: 100%; border-collapse: collapse; min-width: 560px; }
   table.detail thead th { background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
   table.detail tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
@@ -158,7 +166,7 @@
           <p class="panel-sub" id="hitsSub">2개 이상 마켓에서 동시에 Top100에 오른 게임 (같은 앱ID 기준)</p>
         </div>
       </div>
-      <div class="table-scroll">
+      <div class="table-scroll table-scroll-tall">
         <table class="detail" id="hitsTable">
           <thead><tr><th>게임</th><th>퍼블리셔</th><th>마켓별 순위</th></tr></thead>
           <tbody></tbody>
@@ -166,20 +174,21 @@
       </div>
     </section>
 
-    <section class="panel">
-      <div class="panel-head">
+    <details class="panel">
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">여러 마켓에서 활약하는 퍼블리셔</h2>
           <p class="panel-sub" id="pubSub">2개 이상 마켓의 Top100에 게임을 보유한 퍼블리셔</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="table-scroll">
         <table class="detail" id="pubTable">
           <thead><tr><th>퍼블리셔</th><th>진출 마켓</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
-    </section>
+    </details>
 
     <section class="panel">
       <div class="panel-head">
