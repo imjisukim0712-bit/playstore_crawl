@@ -169,6 +169,17 @@
       <p class="panel-note">비중이 높을수록 소수 IP가 장르를 오래 지켜온 과점 시장, 낮을수록 여러 작품이 번갈아 도전하는 경쟁 시장입니다.</p>
     </section>
 
+    <section class="panel" id="subGenreSection" hidden>
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">세부 장르 구성</h2>
+          <p class="panel-sub" id="subGenreSub">스토어 설명에 명시된 표현 기준으로 자동 분류 (일부만 분류됨)</p>
+        </div>
+      </div>
+      <div class="bar-rows" id="subGenreBars"></div>
+      <p class="panel-note">게임 자체 설명에 &ldquo;MMORPG&rdquo;/&ldquo;수집형&rdquo;/&ldquo;가챠&rdquo;/&ldquo;키우기&rdquo;·&ldquo;방치형&rdquo; 같은 표현이 있을 때만 분류하며, 근거가 없으면 추측하지 않고 미분류로 남깁니다. 그래서 실제보다 미분류 비중이 높게 나올 수 있습니다.</p>
+    </section>
+
     <section class="panel" id="moodboardSection">
       <div class="panel-head">
         <div>
@@ -206,6 +217,7 @@
               <th data-key="avgRank">평균 순위</th>
               <th data-key="daysPresent">등장 일수</th>
               <th data-key="score">평점</th>
+              <th data-key="minInstalls">설치 규모</th>
               <th data-key="released">출시일</th>
             </tr>
           </thead>
@@ -374,6 +386,25 @@
     });
   }
 
+  function renderSubGenre(g) {
+    var section = document.getElementById('subGenreSection');
+    var breakdown = g.subGenreBreakdown || [];
+    var classified = breakdown.filter(function (b) { return b.name !== '미분류'; }).reduce(function (s, b) { return s + b.count; }, 0);
+    if (classified < 3) { section.hidden = true; return; }
+    section.hidden = false;
+    var total = breakdown.reduce(function (s, b) { return s + b.count; }, 0) || 1;
+    var max = breakdown.reduce(function (m, b) { return Math.max(m, b.count); }, 1);
+    var wrap = document.getElementById('subGenreBars');
+    clear(wrap);
+    breakdown.forEach(function (b) {
+      wrap.appendChild(mk('div', { cls: 'bar-row', style: { gridTemplateColumns: '140px 1fr 70px' }, children: [
+        mk('div', { cls: 'bar-pub', text: b.name }),
+        mk('div', { cls: 'bar-track', children: [mk('div', { cls: 'bar-fill', style: { width: (b.count / max * 100) + '%', background: b.name === '미분류' ? 'var(--ink-muted)' : 'var(--series-1)' } })] }),
+        mk('div', { cls: 'bar-count', text: b.count + '개 (' + Math.round(b.count / total * 100) + '%)' })
+      ]}));
+    });
+  }
+
   function renderMoodboard(g) {
     var section = document.getElementById('moodboardSection');
     var grid = document.getElementById('moodboardGrid');
@@ -433,9 +464,10 @@
         mk('td', { cls: 'num', text: r.avgRank != null ? (Math.round(r.avgRank * 10) / 10) : '–' }),
         mk('td', { cls: 'num', text: r.daysPresent }),
         mk('td', { cls: 'num', text: r.score != null ? r.score.toFixed(1) : '–' }),
+        mk('td', { cls: 'num', text: r.installsText || '–' }),
         mk('td', {})
       ]});
-      var releasedCell = tr.children[6];
+      var releasedCell = tr.children[7];
       releasedCell.appendChild(document.createTextNode(r.released || '–'));
       if (r.isNewRelease) releasedCell.appendChild(mk('span', { cls: 'pill-release', text: 'D+' + r.daysSinceRelease }));
       if (r.currentRank == null) tr.children[1].appendChild(mk('span', { cls: 'pill-out', text: '차트아웃', style: { marginLeft: '6px' } }));
@@ -464,6 +496,7 @@
     renderKPI(g);
     renderTrend(g);
     renderConcentration(g);
+    renderSubGenre(g);
     renderMoodboard(g);
     renderPublishers(g);
     renderGames(g);

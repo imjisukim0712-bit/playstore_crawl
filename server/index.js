@@ -32,6 +32,19 @@ function stripHtml(s) {
   return String(s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
 }
 
+// Sub-genre tag, read off the store listing's own words (title/summary/description)
+// rather than guessed -- so it's traceable and stays accurate as the catalog changes.
+// Coverage is intentionally partial: a game whose listing doesn't use any of these
+// words is left '' (미분류) rather than forced into a guessed bucket.
+function classifySubGenre(title, summary, description) {
+  const title_ = title || '';
+  const rest = `${summary || ''} ${(description || '').slice(0, 500)}`;
+  if (/키우기|방치형/.test(title_) || /방치형/.test(rest)) return '방치형';
+  if (/MMORPG/i.test(title_ + ' ' + rest)) return 'MMORPG';
+  if (/수집형|가챠/.test(title_ + ' ' + rest)) return '수집형·서브컬처';
+  return '';
+}
+
 async function scrapeRankings(collection, category, opts) {
   opts = opts || {};
   const country = opts.country || 'kr';
@@ -61,6 +74,7 @@ async function scrapeRankings(collection, category, opts) {
     adSupported: !!app.adSupported,
     icon: app.icon || '',
     recentChanges: stripHtml(app.recentChanges),
+    subGenre: classifySubGenre(app.title, app.summary, app.description),
   }));
 }
 
@@ -71,6 +85,7 @@ function toRow(r) {
     퍼블리셔: r.publisher,
     카테고리: r.category,
     '세부 카테고리': r.subCategory,
+    세부장르: r.subGenre,
     장르ID: r.genreId,
     앱ID: r.appId,
     출시일: r.released,
@@ -109,7 +124,7 @@ async function saveExcel(collection, category, typeLabel, opts) {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '매출순위');
   ws['!cols'] = [
-    { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+    { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
     { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
     { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
   ];
@@ -204,7 +219,7 @@ function startServer() {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
       ws['!cols'] = [
-        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
         { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
         { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
       ];
@@ -234,7 +249,7 @@ function startServer() {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
       ws['!cols'] = [
-        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
         { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
         { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
       ];

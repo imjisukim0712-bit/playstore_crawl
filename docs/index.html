@@ -378,6 +378,32 @@
       <div class="bar-rows" id="publisherBars"></div>
     </section>
 
+    <!-- Watchlist -->
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">관심 게임 워치리스트</h2>
+          <p class="panel-sub">직접 등록한 경쟁작·벤치마킹 대상만 따로 모아봅니다</p>
+        </div>
+      </div>
+      <div id="watchlistEmpty" class="panel-note" style="margin-top: 0;">
+        아직 등록된 게임이 없습니다. 저장소의 <code style="font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px;">server/watchlist.json</code> 파일에 게임 이름이나 퍼블리셔를 추가하면 다음 갱신부터 여기 따로 표시됩니다. 예:
+        <br><code style="font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; display: inline-block; margin-top: 6px;">{ "games": ["리니지M"], "publishers": ["NEXON Company"] }</code>
+      </div>
+      <div id="watchlistContent" hidden>
+        <div class="cols-2">
+          <div>
+            <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">게임</h3>
+            <ul class="change-list" id="watchGamesList"></ul>
+          </div>
+          <div>
+            <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">퍼블리셔</h3>
+            <ul class="change-list" id="watchPublishersList"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Rank trend -->
     <section class="panel">
       <div class="panel-head">
@@ -754,6 +780,58 @@
       row.addEventListener('pointerleave', hideTooltip);
       row.addEventListener('blur', hideTooltip);
       wrap.appendChild(row);
+    });
+  })();
+
+  // ============================================================ watchlist
+  (function renderWatchlist() {
+    var wl = DATA.watchlist || { games: [], publishers: [] };
+    var hasAny = wl.games.length > 0 || wl.publishers.length > 0;
+    document.getElementById('watchlistEmpty').hidden = hasAny;
+    document.getElementById('watchlistContent').hidden = !hasAny;
+    if (!hasAny) return;
+
+    var gamesList = document.getElementById('watchGamesList');
+    clear(gamesList);
+    if (wl.games.length === 0) {
+      gamesList.appendChild(mk('li', { cls: 'empty-note', text: '등록된 게임 없음' }));
+    }
+    wl.games.forEach(function (g) {
+      if (!g.found) {
+        gamesList.appendChild(mk('li', { children: [
+          mk('span', { cls: 'change-name', text: g.name, style: { color: 'var(--critical)' } }),
+          mk('span', { cls: 'change-rank', text: '이름을 찾을 수 없음' })
+        ]}));
+        return;
+      }
+      var rankText = g.currentRank != null ? (g.currentRank + '위') : '차트아웃';
+      var deltaText = g.change == null ? '' : (g.change === 0 ? '–' : fmtSigned(g.change));
+      var deltaCls = g.change > 0 ? 'up' : (g.change < 0 ? 'down' : '');
+      gamesList.appendChild(mk('li', { children: [
+        mk('span', { cls: 'change-name', text: g.name + ' · ' + g.publisher }),
+        mk('span', { cls: 'change-rank', text: rankText }),
+        deltaText ? mk('span', { cls: 'delta' + (deltaCls ? ' ' + deltaCls : ''), text: deltaText }) : null
+      ]}));
+    });
+
+    var pubList = document.getElementById('watchPublishersList');
+    clear(pubList);
+    if (wl.publishers.length === 0) {
+      pubList.appendChild(mk('li', { cls: 'empty-note', text: '등록된 퍼블리셔 없음' }));
+    }
+    wl.publishers.forEach(function (p) {
+      if (!p.found) {
+        pubList.appendChild(mk('li', { children: [
+          mk('span', { cls: 'change-name', text: p.publisher, style: { color: 'var(--critical)' } }),
+          mk('span', { cls: 'change-rank', text: '이름을 찾을 수 없음' })
+        ]}));
+        return;
+      }
+      var titleText = p.count === 0 ? '오늘 Top100 없음' : p.titles.slice(0, 3).map(function (t) { return t.name + ' ' + t.rank + '위'; }).join(', ');
+      pubList.appendChild(mk('li', { children: [
+        mk('span', { cls: 'change-name', text: p.publisher }),
+        mk('span', { cls: 'change-rank', text: p.count + '개' })
+      ], attrs: { title: titleText } }));
     });
   })();
 
