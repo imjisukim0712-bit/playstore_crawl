@@ -107,8 +107,12 @@
   summary.panel-head::-webkit-details-marker { display: none; }
   details.panel:not([open]) > summary.panel-head { margin-bottom: 0; }
   summary.panel-head:hover h2.panel-title { color: var(--accent); }
-  .panel-toggle { flex-shrink: 0; align-self: center; color: var(--ink-muted); font-size: 13px; transition: transform 0.15s ease; }
-  details.panel[open] > summary.panel-head .panel-toggle { transform: rotate(180deg); }
+  .panel-toggle { flex-shrink: 0; align-self: center; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--accent); background: var(--accent-wash); border: 1px solid transparent; border-radius: 999px; padding: 7px 14px; white-space: nowrap; }
+  summary.panel-head:hover .panel-toggle { border-color: var(--accent); }
+  .panel-toggle .pt-arrow { font-size: 10px; transition: transform 0.15s ease; }
+  .panel-toggle .pt-label::before { content: '펼치기'; }
+  details.panel[open] > summary.panel-head .panel-toggle .pt-label::before { content: '접기'; }
+  details.panel[open] > summary.panel-head .panel-toggle .pt-arrow { transform: rotate(180deg); }
   table.detail { width: 100%; border-collapse: collapse; min-width: 560px; }
   table.detail thead th { background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
   table.detail tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
@@ -180,7 +184,7 @@
           <h2 class="panel-title">여러 마켓에서 활약하는 퍼블리셔</h2>
           <p class="panel-sub" id="pubSub">2개 이상 마켓의 Top100에 게임을 보유한 퍼블리셔</p>
         </div>
-        <span class="panel-toggle">▾</span>
+        <span class="panel-toggle"><span class="pt-label"></span><span class="pt-arrow">▾</span></span>
       </summary>
       <div class="table-scroll">
         <table class="detail" id="pubTable">
