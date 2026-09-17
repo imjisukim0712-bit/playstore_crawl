@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="장르를 선택하면 그 장르만의 전체 기간 점유율 추이, 집중도, 소속 게임과 퍼블리셔를 자세히 보여주는 장르별 심층 분석">
+<title>장르별 시장 분석</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page-bg: #f9f9f7; --surface: #fcfcfb; --surface-2: #f2f1ec;
+    --ink: #0b0b0b; --ink-2: #52514e; --ink-muted: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --accent: #4338ca; --accent-wash: rgba(67,56,202,0.08);
+    --success: #006300; --critical: #d03b3b;
+    --series-1: #2a78d6;
+    --tooltip-bg: #17171a; --tooltip-ink: #ffffff; --tooltip-ink-2: #c7c6c2;
+    --font-display: 'Noto Serif KR', serif;
+    --font-body: 'Noto Sans KR', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px -16px rgba(11,11,11,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page-bg: #0d0d0d; --surface: #1a1a19; --surface-2: #222221;
+      --ink: #ffffff; --ink-2: #c3c2b7; --ink-muted: #92908a;
+      --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+      --accent: #8b85f0; --accent-wash: rgba(139,133,240,0.16);
+      --success: #0ca30c; --critical: #e0605f;
+      --series-1: #3987e5;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page-bg: #0d0d0d; --surface: #1a1a19; --surface-2: #222221;
+    --ink: #ffffff; --ink-2: #c3c2b7; --ink-muted: #92908a;
+    --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+    --accent: #8b85f0; --accent-wash: rgba(139,133,240,0.16);
+    --success: #0ca30c; --critical: #e0605f;
+    --series-1: #3987e5;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -16px rgba(0,0,0,0.6);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--page-bg); }
+  body { margin: 0; background: var(--page-bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; padding-inline: 20px; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; color: var(--ink); }
+  a { color: var(--accent); }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header.top { padding-block: 32px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .nav-row { display: flex; align-items: center; gap: 10px; font-size: 13px; flex-wrap: wrap; }
+  .nav-row a { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--border); }
+  .nav-row a.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+  h1.title { font-size: clamp(24px, 3.4vw, 34px); font-weight: 900; line-height: 1.2; }
+  p.lede { max-width: 66ch; color: var(--ink-2); font-size: 15px; margin: 2px 0 0; }
+
+  .genre-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .genre-pill { font: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .genre-pill .cnt { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-muted); margin-left: 5px; }
+  .genre-pill:hover { border-color: var(--accent); }
+  .genre-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .genre-pill.active .cnt { color: rgba(255,255,255,0.75); }
+  .genre-pill.empty { opacity: 0.55; }
+
+  main { display: flex; flex-direction: column; gap: 28px; padding-block: 24px 60px; min-width: 0; }
+  main > * { min-width: 0; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px 22px 26px; box-shadow: var(--shadow); }
+  .panel > .panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 16px; }
+  h2.panel-title { font-size: clamp(18px, 2.2vw, 21px); font-weight: 700; }
+  p.panel-sub { color: var(--ink-muted); font-size: 13px; margin: 3px 0 0; }
+  .panel-note { color: var(--ink-muted); font-size: 12.5px; margin-top: 14px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; min-width: 0; }
+  .kpi-grid > * { min-width: 0; }
+  .kpi-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .kpi-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.02em; }
+  .kpi-value { font-size: clamp(19px, 2.6vw, 24px); font-weight: 700; color: var(--ink); overflow-wrap: break-word; }
+  .kpi-sub { font-size: 12.5px; color: var(--ink-2); }
+
+  .chart-scroll { overflow-x: auto; }
+  .chart-scroll svg { display: block; min-width: 560px; width: 100%; height: auto; }
+  .axis-label, .tick-label { fill: var(--ink-muted); font-size: 10.5px; font-family: var(--font-mono); }
+
+  #tooltip { position: fixed; z-index: 60; pointer-events: none; background: var(--tooltip-bg); color: var(--tooltip-ink); border-radius: 8px; padding: 8px 11px; font-size: 12.5px; line-height: 1.5; box-shadow: 0 6px 20px rgba(0,0,0,0.35); max-width: 240px; transform: translate(-50%, calc(-100% - 12px)); }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 4px; color: var(--tooltip-ink); font-family: var(--font-mono); }
+  #tooltip .tt-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  #tooltip .tt-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--tooltip-ink); margin-left: auto; }
+
+  .concentration-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .conc-meter { flex: 1 1 220px; min-width: 160px; height: 20px; border-radius: 5px; background: var(--surface-2); overflow: hidden; position: relative; }
+  .conc-fill { height: 100%; background: var(--series-1); border-radius: 5px 0 0 5px; }
+  .conc-value { font-family: var(--font-mono); font-weight: 700; font-size: 20px; flex-shrink: 0; }
+  .top3-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--ink-2); }
+  .top3-list b { color: var(--ink); }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  table.detail { width: 100%; border-collapse: collapse; min-width: 640px; }
+  table.detail thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+  table.detail thead th .arrow { font-size: 10px; color: var(--accent); margin-left: 3px; }
+  table.detail thead th:hover { color: var(--ink); }
+  table.detail tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  table.detail tbody tr:last-child td { border-bottom: none; }
+  table.detail tbody tr:hover { background: var(--accent-wash); }
+  td.c-rank { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink-muted); }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .pill-release { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 7px; margin-left: 6px; }
+  .pill-out { display: inline-block; font-size: 10.5px; font-weight: 600; color: var(--ink-muted); background: var(--surface-2); border-radius: 999px; padding: 1px 8px; }
+  .bar-rows { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 180px 1fr 90px; align-items: center; gap: 10px; padding: 3px 0; }
+  .bar-pub { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { height: 16px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px 0 0 4px; background: var(--series-1); }
+  .bar-count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--ink-2); text-align: right; }
+  @media (max-width: 560px) { .bar-row { grid-template-columns: 110px 1fr 74px; } }
+
+  footer { border-top: 1px solid var(--border); padding-block: 20px 40px; color: var(--ink-muted); font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
+  footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <nav class="nav-row">
+      <a href="index.html">🇰🇷 한국 상세 리포트</a>
+      <a href="genre.html" class="active">🎮 장르별 분석</a>
+      <a href="global.html">🌐 해외 마켓 비교</a>
+    </nav>
+    <h1 class="title">장르별 시장 분석</h1>
+    <p class="lede">장르를 고르면 그 장르만의 전체 기간 점유율 추이, 상위작 쏠림 정도(집중도), 소속 게임 전체와 퍼블리셔 랭킹을 보여줍니다.</p>
+    <div class="genre-picker" id="genrePicker"></div>
+  </header>
+
+  <main>
+    <section class="kpi-grid" id="kpiGrid" aria-label="선택한 장르 핵심 지표"></section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title" id="trendTitle">점유율 추이</h2>
+          <p class="panel-sub" id="trendSub"></p>
+        </div>
+      </div>
+      <div class="chart-scroll"><svg id="trendChart" viewBox="0 0 960 320" role="img" aria-label="장르 점유율 추이"></svg></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">상위작 쏠림도 (집중도)</h2>
+          <p class="panel-sub" id="concSub">이 장르에 기록된 전체 &ldquo;등장일&rdquo; 중 상위 3개작이 차지하는 비중</p>
+        </div>
+      </div>
+      <div class="concentration-row">
+        <div class="conc-meter"><div class="conc-fill" id="concFill"></div></div>
+        <div class="conc-value" id="concValue"></div>
+      </div>
+      <ul class="top3-list" id="concTop3"></ul>
+      <p class="panel-note">비중이 높을수록 소수 IP가 장르를 오래 지켜온 과점 시장, 낮을수록 여러 작품이 번갈아 도전하는 경쟁 시장입니다.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title">퍼블리셔 랭킹</h2>
+          <p class="panel-sub" id="pubSub">이 장르에 보유한 게임 수 기준 (전체 기간)</p>
+        </div>
+      </div>
+      <div class="bar-rows" id="pubBars"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title" id="gamesTitle">소속 게임 전체</h2>
+          <p class="panel-sub" id="gamesSub"></p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="detail" id="gamesTable">
+          <thead>
+            <tr>
+              <th data-key="currentRank">오늘 순위</th>
+              <th data-key="name">게임</th>
+              <th data-key="publisher">퍼블리셔</th>
+              <th data-key="avgRank">평균 순위</th>
+              <th data-key="daysPresent">등장 일수</th>
+              <th data-key="released">출시일</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <div>이 페이지는 <code>docs/genre-data.js</code>를 사용하며, 매일 <code>server/analyze.js</code>가 <a href="index.html">한국 상세 리포트</a>와 함께 다시 생성합니다. 장르 필드 수집이 안정된 날짜부터의 데이터만 사용합니다.</div>
+      <div id="footerGenerated"></div>
+    </footer>
+  </main>
+</div>
+
+<div id="tooltip" role="tooltip" hidden></div>
+
+<script src="genre-data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var DATA = window.GENRE_DATA;
+  var app = document.querySelector('main');
+  if (!DATA) {
+    app.innerHTML = '';
+    app.appendChild((function () { var p = document.createElement('p'); p.textContent = '데이터를 불러오지 못했습니다. genre-data.js가 같은 폴더에 있는지 확인해주세요.'; return p; })());
+    return;
+  }
+
+  function mk(tag, opts) {
+    var e = document.createElement(tag);
+    opts = opts || {};
+    if (opts.cls) e.className = opts.cls;
+    if (opts.text != null) e.textContent = opts.text;
+    if (opts.attrs) for (var k in opts.attrs) e.setAttribute(k, opts.attrs[k]);
+    if (opts.style) for (var k2 in opts.style) e.style[k2] = opts.style[k2];
+    if (opts.children) opts.children.forEach(function (c) { if (c) e.appendChild(c); });
+    return e;
+  }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svgEl(tag, attrs) { var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function fmtMD(iso) { var p = iso.split('-'); return p[1] + '.' + p[2]; }
+  function seriesColor() { return getComputedStyle(document.documentElement).getPropertyValue('--series-1').trim(); }
+
+  var tooltipEl = document.getElementById('tooltip');
+  function positionTooltip(x, y) {
+    tooltipEl.style.left = Math.min(Math.max(x, 80), window.innerWidth - 80) + 'px';
+    tooltipEl.style.top = Math.max(y, 60) + 'px';
+  }
+  function hideTooltip() { tooltipEl.hidden = true; }
+
+  (function renderFooter() {
+    try {
+      var d = new Date(DATA.generatedAt);
+      document.getElementById('footerGenerated').textContent = '리포트 생성 시각: ' + d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+    } catch (e) {}
+  })();
+
+  var picker = document.getElementById('genrePicker');
+  DATA.genreList.forEach(function (g) {
+    var btn = mk('button', { cls: 'genre-pill' + (g.count === 0 ? ' empty' : ''), attrs: { type: 'button', 'data-genre': g.name }, children: [
+      document.createTextNode(g.name),
+      mk('span', { cls: 'cnt', text: g.count })
+    ]});
+    btn.addEventListener('click', function () { location.hash = encodeURIComponent(g.name); });
+    picker.appendChild(btn);
+  });
+
+  function currentGenreName() {
+    var fromHash = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+    if (fromHash && DATA.genres[fromHash]) return fromHash;
+    return DATA.genreList[0] ? DATA.genreList[0].name : null;
+  }
+
+  function renderKPI(g) {
+    var grid = document.getElementById('kpiGrid');
+    clear(grid);
+    function tile(label, value, sub) {
+      return mk('div', { cls: 'kpi-tile', children: [
+        mk('div', { cls: 'kpi-label', text: label }),
+        mk('div', { cls: 'kpi-value', text: value }),
+        sub ? mk('div', { cls: 'kpi-sub', text: sub }) : null
+      ]});
+    }
+    grid.appendChild(tile('오늘 Top100 내 게임 수', g.today.count + '개', 'Top100 중 ' + g.today.count + '%'));
+    grid.appendChild(tile('오늘 평균 순위', g.today.avgRank != null ? g.today.avgRank + '위' : '–', g.today.count + '개 게임 평균'));
+    grid.appendChild(tile('상위 3개작 쏠림도', g.concentration.pct + '%', '전체 등장일 기준'));
+    grid.appendChild(tile('전체 등장작 수', g.totalGamesEver + '개', DATA.lastDate + ' 기준 누적'));
+    grid.appendChild(tile('신작(90일 이내)', g.newReleases.length + '개', '이 장르 내 최근 출시작'));
+  }
+
+  function renderTrend(g) {
+    var svg = document.getElementById('trendChart');
+    clear(svg);
+    document.getElementById('trendTitle').textContent = g.name + ' · 점유율 추이';
+    var n = g.datesTracked.length;
+    document.getElementById('trendSub').textContent = n > 0
+      ? ('Top100 중 비중(%) · ' + g.datesTracked[0] + ' ~ ' + g.datesTracked[n - 1] + ' (' + n + '일)')
+      : '데이터가 부족합니다.';
+    if (n < 2) return;
+    var W = 960, H = 320, ML = 34, MR = 16, MT = 14, MB = 30;
+    var PW = W - ML - MR, PH = H - MT - MB;
+    var maxV = Math.max(10, Math.max.apply(null, g.dailyShare)) * 1.15;
+    function X(i) { return ML + (i / (n - 1)) * PW; }
+    function Y(v) { return MT + (1 - v / maxV) * PH; }
+
+    var ticks = 4;
+    for (var t = 0; t <= ticks; t++) {
+      var v = Math.round((maxV / ticks) * t);
+      svg.appendChild(svgEl('line', { x1: ML, x2: ML + PW, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }));
+      var lbl = svgEl('text', { x: ML - 8, y: Y(v) + 3, 'text-anchor': 'end', class: 'tick-label' });
+      lbl.textContent = v + '%';
+      svg.appendChild(lbl);
+    }
+    var tickEvery = Math.max(1, Math.round(n / 8));
+    g.datesTracked.forEach(function (d, i) {
+      if (i % tickEvery !== 0 && i !== n - 1) return;
+      var lbl = svgEl('text', { x: X(i), y: H - 8, 'text-anchor': 'middle', class: 'tick-label' });
+      lbl.textContent = fmtMD(d);
+      svg.appendChild(lbl);
+    });
+
+    var color = seriesColor();
+    var areaPts = g.dailyShare.map(function (v, i) { return X(i) + ',' + Y(v); }).join(' L ');
+    svg.appendChild(svgEl('path', { d: 'M ' + ML + ',' + Y(0) + ' L ' + areaPts + ' L ' + (ML + PW) + ',' + Y(0) + ' Z', fill: color, opacity: 0.12 }));
+    svg.appendChild(svgEl('path', { d: 'M ' + areaPts, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round' }));
+    var lastI = n - 1;
+    svg.appendChild(svgEl('circle', { cx: X(lastI), cy: Y(g.dailyShare[lastI]), r: 4.5, fill: color, stroke: 'var(--surface)', 'stroke-width': 2 }));
+
+    var cross = svgEl('line', { x1: 0, x2: 0, y1: MT, y2: MT + PH, stroke: 'var(--baseline)', 'stroke-width': 1, visibility: 'hidden' });
+    svg.appendChild(cross);
+    var hit = svgEl('rect', { x: ML, y: MT, width: PW, height: PH, fill: 'transparent' });
+    svg.appendChild(hit);
+    function handleMove(evt) {
+      var rect = svg.getBoundingClientRect();
+      var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      var clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      var xUser = ((clientX - rect.left) / rect.width) * W;
+      var idx = Math.max(0, Math.min(n - 1, Math.round(((xUser - ML) / PW) * (n - 1))));
+      cross.setAttribute('x1', X(idx)); cross.setAttribute('x2', X(idx));
+      cross.setAttribute('visibility', 'visible');
+      clear(tooltipEl);
+      tooltipEl.appendChild(mk('div', { cls: 'tt-title', text: g.datesTracked[idx] }));
+      tooltipEl.appendChild(mk('div', { cls: 'tt-row', children: [document.createTextNode(g.name), mk('span', { cls: 'tt-val', text: g.dailyShare[idx] + '%' })] }));
+      tooltipEl.hidden = false;
+      positionTooltip(clientX, clientY);
+    }
+    svg.addEventListener('pointermove', handleMove);
+    svg.addEventListener('pointerleave', function () { cross.setAttribute('visibility', 'hidden'); hideTooltip(); });
+  }
+
+  function renderConcentration(g) {
+    document.getElementById('concFill').style.width = g.concentration.pct + '%';
+    document.getElementById('concValue').textContent = g.concentration.pct + '%';
+    var list = document.getElementById('concTop3');
+    clear(list);
+    g.concentration.top3.forEach(function (t, i) {
+      list.appendChild(mk('li', { children: [document.createTextNode((i + 1) + '. '), mk('b', { text: t.name }), document.createTextNode(' — ' + t.daysPresent + '일 등장')] }));
+    });
+  }
+
+  function renderPublishers(g) {
+    var wrap = document.getElementById('pubBars');
+    clear(wrap);
+    var list = g.publishers.slice(0, 12);
+    var max = list.reduce(function (m, p) { return Math.max(m, p.gameCount); }, 1);
+    list.forEach(function (p) {
+      wrap.appendChild(mk('div', { cls: 'bar-row', children: [
+        mk('div', { cls: 'bar-pub', text: p.publisher, attrs: { title: p.publisher } }),
+        mk('div', { cls: 'bar-track', children: [mk('div', { cls: 'bar-fill', style: { width: (p.gameCount / max * 100) + '%' } })] }),
+        mk('div', { cls: 'bar-count', text: p.gameCount + '개 · 현재 ' + p.currentlyCharting + '개' })
+      ]}));
+    });
+    if (list.length === 0) wrap.appendChild(mk('p', { cls: 'panel-note', text: '데이터가 없습니다.' }));
+  }
+
+  var sortKey = 'currentRank', sortDir = 1;
+  function renderGames(g) {
+    document.getElementById('gamesTitle').textContent = g.name + ' · 소속 게임 전체 (' + g.totalGamesEver + '개)';
+    document.getElementById('gamesSub').textContent = '현재 Top100에 없는 게임도 포함 · 오늘 순위가 있는 게임이 먼저 정렬됩니다';
+    var tbody = document.querySelector('#gamesTable tbody');
+    var rows = g.games.slice();
+    rows.sort(function (a, b) {
+      var av = a[sortKey], bv = b[sortKey];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+      return (av - bv) * sortDir;
+    });
+    clear(tbody);
+    rows.forEach(function (r) {
+      var tr = mk('tr', { children: [
+        mk('td', { cls: 'c-rank', text: r.currentRank != null ? r.currentRank : '–' }),
+        mk('td', { cls: 'name', text: r.name, style: { fontWeight: 600 } }),
+        mk('td', { text: r.publisher, style: { color: 'var(--ink-2)' } }),
+        mk('td', { cls: 'num', text: r.avgRank != null ? (Math.round(r.avgRank * 10) / 10) : '–' }),
+        mk('td', { cls: 'num', text: r.daysPresent }),
+        mk('td', {})
+      ]});
+      var releasedCell = tr.children[5];
+      releasedCell.appendChild(document.createTextNode(r.released || '–'));
+      if (r.isNewRelease) releasedCell.appendChild(mk('span', { cls: 'pill-release', text: 'D+' + r.daysSinceRelease }));
+      if (r.currentRank == null) tr.children[1].appendChild(mk('span', { cls: 'pill-out', text: '차트아웃', style: { marginLeft: '6px' } }));
+      tbody.appendChild(tr);
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#gamesTable thead th[data-key]'), function (th) {
+    th.addEventListener('click', function () {
+      var key = th.getAttribute('data-key');
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = key === 'currentRank' || key === 'avgRank' ? 1 : -1; }
+      Array.prototype.forEach.call(document.querySelectorAll('#gamesTable thead th .arrow'), function (a) { a.remove(); });
+      th.appendChild(mk('span', { cls: 'arrow', text: sortDir === 1 ? '↑' : '↓' }));
+      renderGames(currentGenre());
+    });
+  });
+
+  function currentGenre() { return DATA.genres[currentGenreName()]; }
+
+  function renderAll() {
+    var name = currentGenreName();
+    var g = DATA.genres[name];
+    if (!g) return;
+    Array.prototype.forEach.call(picker.querySelectorAll('.genre-pill'), function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-genre') === name);
+    });
+    renderKPI(g);
+    renderTrend(g);
+    renderConcentration(g);
+    renderPublishers(g);
+    renderGames(g);
+  }
+
+  window.addEventListener('hashchange', renderAll);
+  renderAll();
+})();
+</script>
+</body>
+</html>
