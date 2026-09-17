@@ -110,6 +110,14 @@
   a.mood-item:hover .mood-name { color: var(--accent); text-decoration: underline; }
 
   .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  .table-scroll-tall { max-height: 620px; overflow-y: auto; }
+
+  summary.panel-head { cursor: pointer; list-style: none; }
+  summary.panel-head::-webkit-details-marker { display: none; }
+  details.panel:not([open]) > summary.panel-head { margin-bottom: 0; }
+  summary.panel-head:hover h2.panel-title { color: var(--accent); }
+  .panel-toggle { flex-shrink: 0; align-self: center; color: var(--ink-muted); font-size: 13px; transition: transform 0.15s ease; }
+  details.panel[open] > summary.panel-head .panel-toggle { transform: rotate(180deg); }
   table.detail { width: 100%; border-collapse: collapse; min-width: 640px; }
   table.detail thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
   table.detail thead th .arrow { font-size: 10px; color: var(--accent); margin-left: 3px; }
@@ -175,16 +183,17 @@
       <p class="panel-note">비중이 높을수록 소수 IP가 장르를 오래 지켜온 과점 시장, 낮을수록 여러 작품이 번갈아 도전하는 경쟁 시장입니다.</p>
     </section>
 
-    <section class="panel" id="subGenreSection" hidden>
-      <div class="panel-head">
+    <details class="panel" id="subGenreSection" hidden>
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">세부 장르 구성</h2>
           <p class="panel-sub" id="subGenreSub">스토어 설명에 명시된 표현 기준으로 자동 분류 (일부만 분류됨)</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="bar-rows" id="subGenreBars"></div>
       <p class="panel-note">게임 자체 설명에 &ldquo;MMORPG&rdquo;/&ldquo;수집형&rdquo;/&ldquo;가챠&rdquo;/&ldquo;키우기&rdquo;·&ldquo;방치형&rdquo; 같은 표현이 있을 때만 분류하며, 근거가 없으면 추측하지 않고 미분류로 남깁니다. 그래서 실제보다 미분류 비중이 높게 나올 수 있습니다.</p>
-    </section>
+    </details>
 
     <section class="panel" id="moodboardSection">
       <div class="panel-head">
@@ -196,15 +205,16 @@
       <div class="moodboard" id="moodboardGrid"></div>
     </section>
 
-    <section class="panel">
-      <div class="panel-head">
+    <details class="panel">
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">퍼블리셔 랭킹</h2>
           <p class="panel-sub" id="pubSub">이 장르에 보유한 게임 수 기준 (전체 기간)</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="bar-rows" id="pubBars"></div>
-    </section>
+    </details>
 
     <section class="panel">
       <div class="panel-head">
@@ -213,7 +223,7 @@
           <p class="panel-sub" id="gamesSub"></p>
         </div>
       </div>
-      <div class="table-scroll">
+      <div class="table-scroll table-scroll-tall">
         <table class="detail" id="gamesTable">
           <thead>
             <tr>

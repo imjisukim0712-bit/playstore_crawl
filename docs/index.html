@@ -144,6 +144,14 @@
   p.panel-sub { color: var(--ink-muted); font-size: 13px; margin: 3px 0 0; }
   .panel-note { color: var(--ink-muted); font-size: 12.5px; margin-top: 14px; }
 
+  /* ---------- collapsible (secondary) panels ---------- */
+  summary.panel-head { cursor: pointer; list-style: none; }
+  summary.panel-head::-webkit-details-marker { display: none; }
+  details.panel:not([open]) > summary.panel-head { margin-bottom: 0; }
+  summary.panel-head:hover h2.panel-title { color: var(--accent); }
+  .panel-toggle { flex-shrink: 0; align-self: center; color: var(--ink-muted); font-size: 13px; transition: transform 0.15s ease; }
+  details.panel[open] > summary.panel-head .panel-toggle { transform: rotate(180deg); }
+
   /* ---------- KPI tiles ---------- */
   .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; min-width: 0; }
   .kpi-grid > * { min-width: 0; }
@@ -235,6 +243,7 @@
   .filter-row select { flex: 0 1 150px; }
   .filter-count { font-size: 12.5px; color: var(--ink-muted); margin-left: auto; white-space: nowrap; }
   .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+  .table-scroll-tall { max-height: 620px; overflow-y: auto; }
   table.detail { width: 100%; border-collapse: collapse; min-width: 720px; }
   table.detail thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-size: 12px; font-weight: 700; color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
   table.detail thead th .arrow { font-size: 10px; color: var(--accent); margin-left: 3px; }
@@ -314,13 +323,14 @@
     </section>
 
     <!-- Steady performers -->
-    <section class="panel">
-      <div class="panel-head">
+    <details class="panel">
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">꾸준함 리포트</h2>
           <p class="panel-sub">전체 수집 기간 기준 · Top100에 80% 이상 등장한 게임 중 평균 순위가 높은 순</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="cols-2">
         <div class="table-scroll">
           <table class="detail" id="steadyTable">
@@ -335,16 +345,17 @@
           </table>
         </div>
       </div>
-    </section>
+    </details>
 
     <!-- New releases -->
-    <section class="panel">
-      <div class="panel-head">
+    <details class="panel">
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">신작 현황</h2>
           <p class="panel-sub" id="newReleaseSub">스테디셀러 반대편 — 출시 90일 이내에 Top100에 오른 게임</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="table-scroll">
         <table class="detail" id="newReleaseTable">
           <thead><tr><th>순위</th><th>게임</th><th>퍼블리셔</th><th>장르</th><th>출시일</th><th>출시 후</th></tr></thead>
@@ -352,16 +363,17 @@
         </table>
       </div>
       <p class="panel-note" id="newReleaseEmpty" hidden>최근 90일 이내 출시되어 Top100에 오른 게임이 없습니다.</p>
-    </section>
+    </details>
 
     <!-- Genre -->
-    <section class="panel">
-      <div class="panel-head">
+    <details class="panel">
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">장르 시장 점유율</h2>
           <p class="panel-sub" id="genreSub">Top100 게임의 장르 구성 (주간 평균) · 장르를 클릭하면 상세 분석으로 이동합니다</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="cols-2">
         <div>
           <div class="chart-scroll"><svg id="genreTrendChart" viewBox="0 0 720 300" role="img" aria-label="장르별 점유율 추이"></svg></div>
@@ -373,31 +385,33 @@
         </div>
       </div>
       <p class="panel-note">그래프는 장르 필드 수집이 안정된 2026-07-18 이후 주간 데이터만 사용합니다. 상위 7개 장르 외 나머지는 &ldquo;기타&rdquo;로 묶었습니다.</p>
-    </section>
+    </details>
 
     <!-- Publisher leaderboard -->
-    <section class="panel">
-      <div class="panel-head">
+    <details class="panel">
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">퍼블리셔 리더보드</h2>
           <p class="panel-sub">오늘 Top100 안에 보유한 게임 수 기준</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="bar-rows" id="publisherBars"></div>
-    </section>
+    </details>
 
     <!-- Watchlist -->
     <p id="watchlistHint" class="hint-line" hidden>
       <strong>관심 게임 워치리스트</strong>
       아직 등록된 게임이 없습니다 — <code>server/watchlist.json</code>에 게임 이름이나 퍼블리셔를 추가하면 다음 갱신부터 여기 따로 표시됩니다.
     </p>
-    <section id="watchlistPanel" class="panel" hidden>
-      <div class="panel-head">
+    <details id="watchlistPanel" class="panel" hidden>
+      <summary class="panel-head">
         <div>
           <h2 class="panel-title">관심 게임 워치리스트</h2>
           <p class="panel-sub">직접 등록한 경쟁작·벤치마킹 대상만 따로 모아봅니다</p>
         </div>
-      </div>
+        <span class="panel-toggle">▾</span>
+      </summary>
       <div class="cols-2">
         <div>
           <h3 style="font-size: 14px; font-family: var(--font-body); margin-bottom: 8px;">게임</h3>
@@ -408,7 +422,7 @@
           <ul class="change-list" id="watchPublishersList"></ul>
         </div>
       </div>
-    </section>
+    </details>
 
     <!-- Rank trend -->
     <section class="panel">
@@ -435,7 +449,7 @@
         <select id="genreSelect" aria-label="장르 필터"></select>
         <span class="filter-count" id="filterCount"></span>
       </div>
-      <div class="table-scroll">
+      <div class="table-scroll table-scroll-tall">
         <table class="detail" id="detailTable">
           <thead>
             <tr>
