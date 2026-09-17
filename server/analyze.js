@@ -106,11 +106,12 @@ dates.forEach((date, di) => {
     const adSupported = r['광고포함'] === true;
     const icon = String(r['아이콘'] || '').trim();
     const recentChanges = String(r['업데이트내용'] || '').trim();
+    const subGenre = String(r['세부장르'] || '').trim();
     if (!name || !rank || category !== '게임') continue;
     if (!games.has(name)) {
       games.set(name, {
         name, publisher, genre, released: '', ranks: new Array(dates.length).fill(null),
-        score: null, ratings: null, installsText: '', minInstalls: null, offersIAP: false, iapRange: '', adSupported: false, icon: '', recentChanges: '',
+        score: null, ratings: null, installsText: '', minInstalls: null, offersIAP: false, iapRange: '', adSupported: false, icon: '', recentChanges: '', subGenre: '',
       });
     }
     const g = games.get(name);
@@ -128,7 +129,8 @@ dates.forEach((date, di) => {
     g.adSupported = adSupported;
     if (icon) g.icon = icon;
     if (recentChanges) g.recentChanges = recentChanges;
-    snap.push({ rank, name, publisher, genre, released, score, ratings, installsText, minInstalls, offersIAP, iapRange, adSupported, icon, recentChanges });
+    if (subGenre) g.subGenre = subGenre;
+    snap.push({ rank, name, publisher, genre, released, score, ratings, installsText, minInstalls, offersIAP, iapRange, adSupported, icon, recentChanges, subGenre });
   }
   snap.sort((a, b) => a.rank - b.rank);
   snapshots.push({ date, time, count: snap.length });
@@ -336,6 +338,41 @@ const newReleases = detailTable
   .filter(r => r.isNewRelease)
   .sort((a, b) => a.daysSinceRelease - b.daysSinceRelease);
 
+// --- 10b. Watchlist (server/watchlist.json -- empty by default; the user edits it) ---
+function loadWatchlist() {
+  const p = path.join(__dirname, 'watchlist.json');
+  try {
+    const raw = JSON.parse(fs.readFileSync(p, 'utf-8'));
+    return { games: Array.isArray(raw.games) ? raw.games : [], publishers: Array.isArray(raw.publishers) ? raw.publishers : [] };
+  } catch (e) {
+    return { games: [], publishers: [] };
+  }
+}
+const watchlistConfig = loadWatchlist();
+const watchedGames = watchlistConfig.games.map(name => {
+  const g = games.get(name);
+  if (!g) return { name, found: false };
+  const currentRank = rankOf(g, latestIdx);
+  const prevRank = idxPrevDay >= 0 ? rankOf(g, idxPrevDay) : null;
+  return {
+    name, found: true,
+    publisher: g.publisher, genre: genreLabel(g.genre),
+    currentRank, change: currentRank != null && prevRank != null ? prevRank - currentRank : null,
+    score: g.score, released: g.released || '',
+    spark: g.ranks.slice(sparkStart),
+  };
+});
+const watchedPublishers = watchlistConfig.publishers.map(publisher => {
+  const rows = latestSnap.filter(r => r.publisher === publisher);
+  const everSeen = gameList.some(g => g.publisher === publisher);
+  if (!everSeen) return { publisher, found: false };
+  return {
+    publisher, found: true,
+    count: rows.length,
+    titles: rows.map(r => ({ name: r.name, rank: r.rank })).sort((a, b) => a.rank - b.rank),
+  };
+});
+
 // --- 12. Per-genre detail dataset (drives docs/genre.html) ---
 // Unlike genreShareLatest/genreTrend (folded to a fixed 7+"기타" for the stacked
 // chart's color budget), this covers every genre that has ever appeared -- a
@@ -382,9 +419,11 @@ distinctGenres.forEach(genreName => {
       isNewRelease: daysSinceRelease != null && daysSinceRelease >= 0 && daysSinceRelease <= NEW_RELEASE_DAYS,
       score: g.score,
       installsText: g.installsText,
+      minInstalls: g.minInstalls,
       offersIAP: g.offersIAP,
       adSupported: g.adSupported,
       icon: g.icon,
+      subGenre: g.subGenre || '',
     };
   }).sort((a, b) => {
     if (a.currentRank != null && b.currentRank != null) return a.currentRank - b.currentRank;
@@ -419,6 +458,16 @@ distinctGenres.forEach(genreName => {
     newReleases: gamesOut.filter(g => g.isNewRelease).sort((a, b) => a.daysSinceRelease - b.daysSinceRelease),
     benchmark: benchmarkOf(genreGames.filter(g => rankOf(g, latestIdx) != null)),
     moodboard: currentlyCharting.filter(g => g.icon).slice(0, 12).map(g => ({ name: g.name, icon: g.icon, currentRank: g.currentRank })),
+    subGenreBreakdown: (() => {
+      // Sourced from each game's own store listing (see server/index.js
+      // classifySubGenre), not guessed -- so coverage is partial by design.
+      const counts = new Map();
+      currentlyCharting.forEach(cg => {
+        const key = cg.subGenre || '미분류';
+        counts.set(key, (counts.get(key) || 0) + 1);
+      });
+      return [...counts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    })(),
   };
 });
 
@@ -461,6 +510,7 @@ const data = {
   newReleaseWindowDays: NEW_RELEASE_DAYS,
   newReleases,
   qualityBenchmark,
+  watchlist: { games: watchedGames, publishers: watchedPublishers },
   detailTable,
 };
 

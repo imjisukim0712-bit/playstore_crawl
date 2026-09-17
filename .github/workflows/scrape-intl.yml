@@ -18,8 +18,10 @@ jobs:
           node-version: 20
       - run: npm install
         working-directory: ./server
-      - name: Patch google-play-scraper bug
-        run: sed -i 's/searchArray === null || searchArray.length === 0/searchArray === null || searchArray === undefined || searchArray.length === 0/' node_modules/google-play-scraper/lib/utils/mappingHelpers.js
+      - name: Patch google-play-scraper bugs
+        run: |
+          sed -i 's/searchArray === null || searchArray.length === 0/searchArray === null || searchArray === undefined || searchArray.length === 0/' node_modules/google-play-scraper/lib/utils/mappingHelpers.js
+          sed -i "s/description\.replace(\/<br>\/g, '\\\\r\\\\n')/(description || '').replace(\/<br>\/g, '\\\\r\\\\n')/" node_modules/google-play-scraper/lib/utils/mappingHelpers.js
         working-directory: ./server
       - run: node index.js --ci-intl
         working-directory: ./server
