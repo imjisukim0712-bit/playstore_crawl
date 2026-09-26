@@ -137,7 +137,14 @@
   footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
   [hidden] { display: none !important; }
   .nav-row { flex-wrap: wrap; }
-  .nav-markets .nav-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); margin-right: 2px; }
+  .report-links { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px 20px; box-shadow: var(--shadow); }
+  .report-links .panel-sub { margin-bottom: 14px; }
+  .rl-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(136px, 1fr)); gap: 10px; word-break: keep-all; }
+  .rl-pill { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); text-decoration: none; }
+  .rl-pill:hover, .rl-pill:focus-visible { border-color: var(--accent); background: var(--accent-wash); outline: none; }
+  .rl-pill .rl-flag { font-size: 22px; line-height: 1; }
+  .rl-pill .rl-name { display: block; font-weight: 700; font-size: 14px; }
+  .rl-pill .rl-metric { display: block; font-size: 11.5px; color: var(--ink-muted); }
 </style>
 </head>
 <body>
@@ -148,21 +155,25 @@
       <a href="genre.html">🎮 장르별 분석</a>
       <a href="global.html" class="active">🌐 해외 마켓 비교</a>
     </nav>
-    <nav class="nav-row nav-markets" aria-label="마켓별 리포트">
-      <span class="nav-label">마켓별 리포트</span>
-      <a href="market.html?m=us">🇺🇸 미국</a>
-      <a href="market.html?m=ru">🇷🇺 러시아</a>
-      <a href="market.html?m=in">🇮🇳 인도</a>
-      <a href="market.html?m=id">🇮🇩 인도네시아</a>
-      <a href="market.html?m=gb">🇬🇧 영국</a>
-      <a href="market.html?m=jp">🇯🇵 일본</a>
-    </nav>
     <h1 class="title">해외 게임 마켓 비교</h1>
-    <p class="lede">한국과 해외 플레이스토어의 오늘자 게임 순위를 같은 기준으로 나란히 비교합니다. 러시아는 Google Play 결제가 중단되어 있어 매출 대신 인기 무료 순위를 사용합니다. 마켓별 상세 분석은 위의 마켓별 리포트에서 볼 수 있습니다.</p>
+    <p class="lede">한국과 해외 플레이스토어의 오늘자 게임 순위를 같은 기준으로 나란히 비교합니다. 러시아는 Google Play 결제가 중단되어 있어 매출 대신 인기 무료 순위를 사용합니다. 마켓별 상세 분석은 아래 마켓별 상세 리포트에서 볼 수 있습니다.</p>
     <div class="meta-row" id="metaRow"></div>
   </header>
 
   <main>
+    <section class="report-links" aria-label="마켓별 상세 리포트">
+      <h2 class="panel-title">마켓별 상세 리포트</h2>
+      <p class="panel-sub">마켓을 고르면 한국 상세 리포트와 같은 기준의 순위·장르·퍼블리셔 분석과 포지셔닝 맵을 볼 수 있습니다</p>
+      <div class="rl-row">
+        <a class="rl-pill" href="market.html?m=us"><span class="rl-flag">🇺🇸</span><span><span class="rl-name">미국</span><span class="rl-metric">매출 순위 리포트</span></span></a>
+        <a class="rl-pill" href="market.html?m=ru"><span class="rl-flag">🇷🇺</span><span><span class="rl-name">러시아</span><span class="rl-metric">인기 무료 순위 리포트</span></span></a>
+        <a class="rl-pill" href="market.html?m=in"><span class="rl-flag">🇮🇳</span><span><span class="rl-name">인도</span><span class="rl-metric">매출 순위 리포트</span></span></a>
+        <a class="rl-pill" href="market.html?m=id"><span class="rl-flag">🇮🇩</span><span><span class="rl-name">인도네시아</span><span class="rl-metric">매출 순위 리포트</span></span></a>
+        <a class="rl-pill" href="market.html?m=gb"><span class="rl-flag">🇬🇧</span><span><span class="rl-name">영국</span><span class="rl-metric">매출 순위 리포트</span></span></a>
+        <a class="rl-pill" href="market.html?m=jp"><span class="rl-flag">🇯🇵</span><span><span class="rl-name">일본</span><span class="rl-metric">매출 순위 리포트</span></span></a>
+      </div>
+    </section>
+
     <section class="market-grid" id="marketGrid" aria-label="마켓별 요약"></section>
 
     <section class="panel">
