@@ -9,6 +9,8 @@
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
+const { parseReleased } = require('./lib/classify');
+const { buildMarket, writeWindowVar } = require('./lib/market-report');
 
 const outputDir = path.join(__dirname, 'output');
 const docsDir = path.join(__dirname, '..', 'docs');
@@ -42,24 +44,6 @@ function parseTimestamp(filePath) {
   };
 }
 
-// The Play Store '출시일'/released field comes back in whatever locale the
-// store was queried in. JS Date() parses "2026. 8. 20." (ko), "Apr 11, 2023"
-// (en) and "2021/02/17" (ja) natively; Russian's Cyrillic month name needs a
-// small manual lookup.
-const RU_MONTHS = [['мар', 3], ['ма', 5], ['янв', 1], ['фев', 2], ['апр', 4], ['июн', 6], ['июл', 7], ['авг', 8], ['сен', 9], ['окт', 10], ['ноя', 11], ['дек', 12]];
-function parseReleased(str) {
-  if (!str) return null;
-  const ru = String(str).match(/^(\d{1,2})\s+([а-яё]+)\.?\s*(\d{4})/iu);
-  if (ru) {
-    const token = ru[2].toLowerCase();
-    const month = RU_MONTHS.find(([prefix]) => token.startsWith(prefix));
-    if (!month) return null;
-    const d = new Date(Date.UTC(+ru[3], month[1] - 1, +ru[1]));
-    return isNaN(d.getTime()) ? null : d;
-  }
-  const d = new Date(str);
-  return isNaN(d.getTime()) ? null : d;
-}
 const NEW_RELEASE_DAYS = 90;
 
 // --- 1. Pick one "closing" snapshot per calendar date (the latest run that day) ---
@@ -529,6 +513,12 @@ fs.writeFileSync(outPath, `window.PLAYSTORE_DATA = ${JSON.stringify(data)};\n`, 
 const genreOutPath = path.join(docsDir, 'genre-data.js');
 fs.writeFileSync(genreOutPath, `window.GENRE_DATA = ${JSON.stringify(genreDetailOut)};\n`, 'utf-8');
 
+// --- 13. KR opportunity map (포지셔닝 맵 on genre.html), same builder as the intl markets ---
+const krBuilt = buildMarket({ code: 'kr', label: '대한민국', flag: '🇰🇷', country: 'kr', metric: 'GROSSING', metricLabel: '매출 순위' }, outputDir, new Set(['intl']));
+const oppOutPath = path.join(docsDir, 'markets', 'kr-opp.js');
+writeWindowVar(oppOutPath, 'OPPORTUNITY_DATA', krBuilt.opportunity);
+
 console.log(`Parsed ${candidateFiles.length} snapshots -> ${dates.length} days (${dates[0]} ~ ${dates[latestIdx]}), ${gameList.length} unique games.`);
 console.log(`Wrote ${outPath} (${(fs.statSync(outPath).size / 1024).toFixed(1)} KB)`);
 console.log(`Wrote ${genreOutPath} (${(fs.statSync(genreOutPath).size / 1024).toFixed(1)} KB) -- ${distinctGenres.length} genres`);
+console.log(`Wrote ${oppOutPath} (${(fs.statSync(oppOutPath).size / 1024).toFixed(1)} KB) -- ${krBuilt.opportunity.games.length} games in the opportunity window`);

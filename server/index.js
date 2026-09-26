@@ -75,6 +75,14 @@ async function scrapeRankings(collection, category, opts) {
     icon: app.icon || '',
     recentChanges: stripHtml(app.recentChanges),
     subGenre: classifySubGenre(app.title, app.summary, app.description),
+    // Google Play's own listing tags (art style, setting, player mode, sub-genre...).
+    // The entries with an id are the Play genre itself; the id-less ones are the tags.
+    tags: (app.categories || []).filter(c => c && !c.id && c.name).map(c => c.name),
+    contentRating: app.contentRating || '',
+    summary: stripHtml(app.summary),
+    // Only the opening pitch -- enough for the classifier's keyword fallback on
+    // listings that carry no Play tags, without bloating every daily snapshot.
+    descriptionHead: stripHtml(app.description).slice(0, 200),
   }));
 }
 
@@ -101,8 +109,18 @@ function toRow(r) {
     광고포함: r.adSupported,
     아이콘: r.icon,
     업데이트내용: r.recentChanges,
+    태그: (r.tags || []).join(', '),
+    연령등급: r.contentRating,
+    요약: r.summary,
+    설명: r.descriptionHead,
   };
 }
+
+const COL_WIDTHS = [
+  { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
+  { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
+  { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 }, { wch: 40 }, { wch: 12 }, { wch: 50 }, { wch: 60 },
+];
 
 async function saveJSON(collection, category, typeLabel, opts) {
   console.log(`\nScraping ${typeLabel}...`);
@@ -123,11 +141,7 @@ async function saveExcel(collection, category, typeLabel, opts) {
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-  ws['!cols'] = [
-    { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
-    { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
-    { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
-  ];
+  ws['!cols'] = COL_WIDTHS;
   const subDir = (opts && opts.subDir) || path.join(outputDir, dateDir());
   if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
   const fileName = `${timestamp()}.xlsx`;
@@ -142,10 +156,19 @@ async function saveExcel(collection, category, typeLabel, opts) {
 // has been unavailable there since 2022, so the scraper's response for that
 // collection carries no games cluster at all. TOP_FREE (popularity) is tracked
 // there instead, and clearly labeled as a different metric from the other markets.
+//
+// Every market is fetched with lang 'ko': the chart order depends only on
+// `country` (verified identical for en vs ko), while the Korean locale gives
+// Korean titles where the developer localized them and -- more importantly --
+// Play's listing tags in one vocabulary across all markets, which the
+// opportunity-map classifier (lib/classify.js) relies on.
 const INTL_MARKETS = [
-  { code: 'us', country: 'us', lang: 'en', label: '미국', collection: 'GROSSING' },
-  { code: 'jp', country: 'jp', lang: 'ja', label: '일본', collection: 'GROSSING' },
-  { code: 'ru', country: 'ru', lang: 'ru', label: '러시아', collection: 'TOP_FREE' },
+  { code: 'us', country: 'us', lang: 'ko', label: '미국', collection: 'GROSSING' },
+  { code: 'gb', country: 'gb', lang: 'ko', label: '영국', collection: 'GROSSING' },
+  { code: 'in', country: 'in', lang: 'ko', label: '인도', collection: 'GROSSING' },
+  { code: 'id', country: 'id', lang: 'ko', label: '인도네시아', collection: 'GROSSING' },
+  { code: 'jp', country: 'jp', lang: 'ko', label: '일본', collection: 'GROSSING' },
+  { code: 'ru', country: 'ru', lang: 'ko', label: '러시아', collection: 'TOP_FREE' },
 ];
 
 async function saveExcelIntl(market) {
@@ -218,11 +241,7 @@ function startServer() {
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [
-        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
-        { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
-        { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
-      ];
+      ws['!cols'] = COL_WIDTHS;
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);
@@ -248,11 +267,7 @@ function startServer() {
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, '매출순위');
-      ws['!cols'] = [
-        { wch: 6 }, { wch: 40 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 20 }, { wch: 34 }, { wch: 12 },
-        { wch: 8 }, { wch: 10 }, { wch: 10 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
-        { wch: 26 }, { wch: 8 }, { wch: 50 }, { wch: 50 },
-      ];
+      ws['!cols'] = COL_WIDTHS;
       const fileName = `${timestamp()}.xlsx`;
       const filePath = path.join(outputDir, fileName);
       XLSX.writeFile(wb, filePath);

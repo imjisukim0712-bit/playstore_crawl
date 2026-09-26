@@ -275,6 +275,8 @@
   footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
 
   [hidden] { display: none !important; }
+  .nav-row { flex-wrap: wrap; }
+  .nav-markets .nav-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); margin-right: 2px; }
 </style>
 </head>
 <body>
@@ -284,6 +286,15 @@
       <a href="index.html" class="active">🇰🇷 한국 상세 리포트</a>
       <a href="genre.html">🎮 장르별 분석</a>
       <a href="global.html">🌐 해외 마켓 비교</a>
+    </nav>
+    <nav class="nav-row nav-markets" aria-label="마켓별 리포트">
+      <span class="nav-label">마켓별 리포트</span>
+      <a href="market.html?m=us">🇺🇸 미국</a>
+      <a href="market.html?m=ru">🇷🇺 러시아</a>
+      <a href="market.html?m=in">🇮🇳 인도</a>
+      <a href="market.html?m=id">🇮🇩 인도네시아</a>
+      <a href="market.html?m=gb">🇬🇧 영국</a>
+      <a href="market.html?m=jp">🇯🇵 일본</a>
     </nav>
     <div class="eyebrow">
       <span>Play Store · 대한민국 · 매출 순위 TOP 100 · 게임</span>

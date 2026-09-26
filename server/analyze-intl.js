@@ -7,6 +7,8 @@
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
+const { genreLabelOf } = require('./lib/classify');
+const { buildMarket, writeWindowVar } = require('./lib/market-report');
 
 const outputDir = path.join(__dirname, 'output');
 const intlDir = path.join(outputDir, 'intl');
@@ -18,20 +20,12 @@ const GENRE_FOLD_N = 7;
 const MARKETS = [
   { code: 'kr', label: '대한민국', flag: '🇰🇷', metric: 'GROSSING', metricLabel: '매출 순위', dir: outputDir, dateFolderCheck: true },
   { code: 'us', label: '미국', flag: '🇺🇸', metric: 'GROSSING', metricLabel: '매출 순위', dir: path.join(intlDir, 'us') },
+  { code: 'gb', label: '영국', flag: '🇬🇧', metric: 'GROSSING', metricLabel: '매출 순위', dir: path.join(intlDir, 'gb') },
+  { code: 'in', label: '인도', flag: '🇮🇳', metric: 'GROSSING', metricLabel: '매출 순위', dir: path.join(intlDir, 'in') },
+  { code: 'id', label: '인도네시아', flag: '🇮🇩', metric: 'GROSSING', metricLabel: '매출 순위', dir: path.join(intlDir, 'id') },
   { code: 'jp', label: '일본', flag: '🇯🇵', metric: 'GROSSING', metricLabel: '매출 순위', dir: path.join(intlDir, 'jp') },
   { code: 'ru', label: '러시아', flag: '🇷🇺', metric: 'TOP_FREE', metricLabel: '인기 무료 순위', dir: path.join(intlDir, 'ru'), note: 'Google Play 결제가 러시아에서 중단되어 있어 매출 차트를 제공하지 않습니다. 대신 인기 무료 순위를 수집합니다.' },
 ];
-
-const GENRE_ID_LABEL = {
-  GAME_ACTION: '액션', GAME_ADVENTURE: '어드벤처', GAME_ARCADE: '아케이드', GAME_BOARD: '보드',
-  GAME_CARD: '카드', GAME_CASINO: '카지노', GAME_CASUAL: '캐주얼', GAME_EDUCATIONAL: '교육',
-  GAME_MUSIC: '음악', GAME_PUZZLE: '퍼즐', GAME_RACING: '레이싱', GAME_ROLE_PLAYING: '롤플레잉',
-  GAME_SIMULATION: '시뮬레이션', GAME_SPORTS: '스포츠', GAME_STRATEGY: '전략', GAME_TRIVIA: '퀴즈',
-  GAME_WORD: '낱말',
-};
-function genreLabelOf(genreId, fallbackText) {
-  return GENRE_ID_LABEL[genreId] || fallbackText || '기타';
-}
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
@@ -183,3 +177,14 @@ fs.writeFileSync(outPath, `window.GLOBAL_DATA = ${JSON.stringify(data)};\n`, 'ut
 console.log(`Markets: ${available.map(m => m.code + '(' + m.dates.length + 'd)').join(', ')}`);
 console.log(`Global hits (2+ markets): ${globalHits.length}, global publishers: ${globalPublishers.length}`);
 console.log(`Wrote ${outPath} (${(fs.statSync(outPath).size / 1024).toFixed(1)} KB)`);
+
+// --- Per-market deep reports (docs/market.html?m=<code>) + opportunity maps ---
+// KR is excluded: its report is index.html (analyze.js), which also writes kr-opp.js.
+const marketsDir = path.join(docsDir, 'markets');
+MARKETS.filter(m => m.code !== 'kr').forEach(m => {
+  const built = buildMarket({ ...m, country: m.code }, m.dir);
+  if (!built) { console.log(`  ${m.code}: no snapshots yet, report skipped`); return; }
+  const reportSize = writeWindowVar(path.join(marketsDir, `${m.code}.js`), 'MARKET_DATA', built.report);
+  const oppSize = writeWindowVar(path.join(marketsDir, `${m.code}-opp.js`), 'OPPORTUNITY_DATA', built.opportunity);
+  console.log(`  ${m.code}: ${built.report.meta.totalDays}d report ${(reportSize / 1024).toFixed(1)} KB, opportunity ${built.opportunity.games.length} games ${(oppSize / 1024).toFixed(1)} KB`);
+});

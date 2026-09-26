@@ -112,15 +112,6 @@
   .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
   .table-scroll-tall { max-height: 620px; overflow-y: auto; }
 
-  .pos-controls { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin-bottom: 6px; }
-  .pos-controls label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
-  .pos-controls select { font: inherit; font-size: 13.5px; padding: 7px 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); }
-  .pos-point { cursor: pointer; }
-  .pos-legend { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px 18px; font-size: 12.5px; color: var(--ink-2); }
-  .pos-legend li { display: flex; align-items: center; gap: 7px; }
-  .pos-legend .swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .gap-note { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: var(--accent-wash); border: 1px solid var(--accent); font-size: 13px; color: var(--ink-2); line-height: 1.5; }
-  .gap-note b { color: var(--accent); }
 
   summary.panel-head { cursor: pointer; list-style: none; }
   summary.panel-head::-webkit-details-marker { display: none; }
@@ -154,6 +145,7 @@
   footer { border-top: 1px solid var(--border); padding-block: 20px 40px; color: var(--ink-muted); font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
   footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
   [hidden] { display: none !important; }
+  .nav-markets .nav-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); margin-right: 2px; }
 </style>
 </head>
 <body>
@@ -163,6 +155,15 @@
       <a href="index.html">🇰🇷 한국 상세 리포트</a>
       <a href="genre.html" class="active">🎮 장르별 분석</a>
       <a href="global.html">🌐 해외 마켓 비교</a>
+    </nav>
+    <nav class="nav-row nav-markets" aria-label="마켓별 리포트">
+      <span class="nav-label">마켓별 리포트</span>
+      <a href="market.html?m=us">🇺🇸 미국</a>
+      <a href="market.html?m=ru">🇷🇺 러시아</a>
+      <a href="market.html?m=in">🇮🇳 인도</a>
+      <a href="market.html?m=id">🇮🇩 인도네시아</a>
+      <a href="market.html?m=gb">🇬🇧 영국</a>
+      <a href="market.html?m=jp">🇯🇵 일본</a>
     </nav>
     <h1 class="title">장르별 시장 분석</h1>
     <p class="lede">장르를 고르면 그 장르만의 전체 기간 점유율 추이, 상위작 쏠림 정도(집중도), 소속 게임 전체와 퍼블리셔 랭킹을 보여줍니다.</p>
@@ -197,23 +198,7 @@
       <p class="panel-note">비중이 높을수록 소수 IP가 장르를 오래 지켜온 과점 시장, 낮을수록 여러 작품이 번갈아 도전하는 경쟁 시장입니다.</p>
     </section>
 
-    <section class="panel" id="positioningSection">
-      <div class="panel-head">
-        <div>
-          <h2 class="panel-title">포지셔닝 맵</h2>
-          <p class="panel-sub">두 지표를 축으로 이 장르 게임들의 위치를 비교하고, 비어있는 구간(기회 영역)을 찾아봅니다</p>
-        </div>
-      </div>
-      <div class="pos-controls">
-        <label>가로축 <select id="posXAxis" aria-label="가로축 지표"></select></label>
-        <label>세로축 <select id="posYAxis" aria-label="세로축 지표"></select></label>
-      </div>
-      <div class="chart-scroll"><svg id="posChart" viewBox="0 0 880 480" role="img" aria-label="장르 포지셔닝 맵"></svg></div>
-      <ul class="pos-legend" id="posLegend"></ul>
-      <p class="gap-note" id="posGapNote" hidden></p>
-      <p class="panel-note" id="posEmptyNote" hidden>이 장르는 포지셔닝 맵을 그리기에 데이터(평점·설치 규모 등)가 있는 게임이 너무 적습니다.</p>
-      <p class="panel-note">아이콘 테두리 색은 세부 장르를 나타냅니다 (미분류는 회색). 점을 클릭하면 Play 스토어로 이동합니다.</p>
-    </section>
+    <section class="panel" id="oppSection" aria-label="포지셔닝 맵"></section>
 
     <details class="panel" id="subGenreSection" hidden>
       <summary class="panel-head">
@@ -284,6 +269,8 @@
 <div id="tooltip" role="tooltip" hidden></div>
 
 <script src="genre-data.js"></script>
+<script src="markets/kr-opp.js"></script>
+<script src="opportunity.js"></script>
 <script>
 (function () {
   'use strict';
@@ -327,26 +314,6 @@
       return mk('a', { cls: 'game-link' + (cls ? ' ' + cls : ''), attrs: { href: ref.url, target: '_blank', rel: 'noopener noreferrer', title: name + ' — Play 스토어에서 보기' }, children: kids });
     }
     return mk('span', { cls: 'game-link' + (cls ? ' ' + cls : ''), children: kids });
-  }
-
-  // ---- positioning map: axis metrics + sub-genre color (fixed hue order) ----
-  function fmtInstallsKR(v) {
-    if (v >= 100000000) return Math.round(v / 100000000) + '억+';
-    if (v >= 10000) return Math.round(v / 10000) + '만+';
-    if (v >= 1000) return Math.round(v / 1000) + '천+';
-    return Math.round(v) + '+';
-  }
-  var POS_AXES = [
-    { key: 'minInstalls', label: '설치 규모 (로그)', log: true, fmt: fmtInstallsKR },
-    { key: 'score', label: '평점', log: false, fmt: function (v) { return v.toFixed(1); } },
-    { key: 'daysPresent', label: '등장 일수', log: false, fmt: function (v) { return Math.round(v) + '일'; } },
-  ];
-  var SUBGENRE_ORDER = ['MMORPG', '수집형·서브컬처', '방치형'];
-  var SUBGENRE_VARS = ['--series-2', '--series-3', '--series-4'];
-  function subGenreColor(sg) {
-    var idx = SUBGENRE_ORDER.indexOf(sg);
-    if (idx === -1) return getComputedStyle(document.documentElement).getPropertyValue('--ink-muted').trim();
-    return getComputedStyle(document.documentElement).getPropertyValue(SUBGENRE_VARS[idx]).trim();
   }
 
   var tooltipEl = document.getElementById('tooltip');
@@ -472,179 +439,6 @@
     });
   }
 
-  var posXKey = 'minInstalls', posYKey = 'score';
-  function renderPositioning(g) {
-    var svg = document.getElementById('posChart');
-    clear(svg);
-    var xSel = document.getElementById('posXAxis');
-    var ySel = document.getElementById('posYAxis');
-    if (!xSel.options.length) {
-      POS_AXES.forEach(function (a) {
-        xSel.appendChild(mk('option', { attrs: { value: a.key }, text: a.label }));
-        ySel.appendChild(mk('option', { attrs: { value: a.key }, text: a.label }));
-      });
-      xSel.addEventListener('change', function () {
-        if (xSel.value === posYKey) { posYKey = posXKey; ySel.value = posYKey; }
-        posXKey = xSel.value;
-        renderPositioning(currentGenre());
-      });
-      ySel.addEventListener('change', function () {
-        if (ySel.value === posXKey) { posXKey = posYKey; xSel.value = posXKey; }
-        posYKey = ySel.value;
-        renderPositioning(currentGenre());
-      });
-    }
-    xSel.value = posXKey;
-    ySel.value = posYKey;
-
-    var xAxis = POS_AXES.filter(function (a) { return a.key === posXKey; })[0];
-    var yAxis = POS_AXES.filter(function (a) { return a.key === posYKey; })[0];
-    var legendEl = document.getElementById('posLegend');
-    var gapEl = document.getElementById('posGapNote');
-    var emptyEl = document.getElementById('posEmptyNote');
-    clear(legendEl);
-    gapEl.hidden = true;
-
-    var pts = g.games.filter(function (r) {
-      var xv = r[posXKey], yv = r[posYKey];
-      if (xv == null || yv == null) return false;
-      if (posXKey === 'minInstalls' && xv <= 0) return false;
-      if (posYKey === 'minInstalls' && yv <= 0) return false;
-      return true;
-    });
-    if (pts.length < 3) { emptyEl.hidden = false; return; }
-    emptyEl.hidden = true;
-
-    function rawVal(r, axis) { var v = r[axis.key]; return axis.log ? Math.log10(Math.max(1, v)) : v; }
-    function dispVal(r, axis) { return axis.log ? Math.pow(10, rawVal(r, axis)) : rawVal(r, axis); }
-
-    var W = 880, H = 480, ML = 56, MR = 20, MT = 20, MB = 50;
-    var PW = W - ML - MR, PH = H - MT - MB;
-    var xs = pts.map(function (r) { return rawVal(r, xAxis); });
-    var ys = pts.map(function (r) { return rawVal(r, yAxis); });
-    var xDataMin = Math.min.apply(null, xs), xDataMax = Math.max.apply(null, xs);
-    var yDataMin = Math.min.apply(null, ys), yDataMax = Math.max.apply(null, ys);
-    var xPad = (xDataMax - xDataMin) * 0.10 || 1;
-    var yPad = (yDataMax - yDataMin) * 0.12 || 0.3;
-    var xMin = xDataMin - xPad, xMax = xDataMax + xPad;
-    var yMin = yDataMin - yPad, yMax = yDataMax + yPad;
-    function X(v) { return ML + ((v - xMin) / (xMax - xMin)) * PW; }
-    function Y(v) { return MT + (1 - (v - yMin) / (yMax - yMin)) * PH; }
-
-    // --- tertile grid, for gap (white-space) detection ---
-    function tertileBounds(sorted) {
-      var n = sorted.length;
-      return [sorted[Math.min(n - 1, Math.floor(n / 3))], sorted[Math.min(n - 1, Math.floor(2 * n / 3))]];
-    }
-    var xT = tertileBounds(xs.slice().sort(function (a, b) { return a - b; }));
-    var yT = tertileBounds(ys.slice().sort(function (a, b) { return a - b; }));
-    function binOf(v, t) { return v <= t[0] ? 0 : (v <= t[1] ? 1 : 2); }
-    var xEdges = [xMin, xT[0], xT[1], xMax];
-    var yEdges = [yMin, yT[0], yT[1], yMax];
-
-    if (pts.length >= 9) {
-      var cellCounts = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-      pts.forEach(function (r) { cellCounts[binOf(rawVal(r, xAxis), xT)][binOf(rawVal(r, yAxis), yT)] += 1; });
-      var minCount = Infinity;
-      for (var i = 0; i < 3; i++) for (var j = 0; j < 3; j++) minCount = Math.min(minCount, cellCounts[i][j]);
-      var gapCells = [];
-      for (var xi = 0; xi < 3; xi++) for (var yi = 0; yi < 3; yi++) if (cellCounts[xi][yi] === minCount) gapCells.push({ xi: xi, yi: yi });
-      gapCells.sort(function (a, b) { return (b.xi + b.yi) - (a.xi + a.yi); });
-
-      gapCells.forEach(function (c) {
-        var x0 = X(xEdges[c.xi]), x1 = X(xEdges[c.xi + 1]);
-        var y0 = Y(yEdges[c.yi + 1]), y1 = Y(yEdges[c.yi]);
-        if (Math.abs(x1 - x0) < 2 || Math.abs(y1 - y0) < 2) return;
-        svg.appendChild(svgEl('rect', { x: Math.min(x0, x1), y: Math.min(y0, y1), width: Math.abs(x1 - x0), height: Math.abs(y1 - y0), fill: 'var(--accent)', opacity: 0.08 }));
-        svg.appendChild(svgEl('rect', { x: Math.min(x0, x1), y: Math.min(y0, y1), width: Math.abs(x1 - x0), height: Math.abs(y1 - y0), fill: 'none', stroke: 'var(--accent)', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }));
-      });
-      [xT[0], xT[1]].forEach(function (v) { svg.appendChild(svgEl('line', { x1: X(v), x2: X(v), y1: MT, y2: MT + PH, stroke: 'var(--grid)', 'stroke-width': 1, 'stroke-dasharray': '3 3' })); });
-      [yT[0], yT[1]].forEach(function (v) { svg.appendChild(svgEl('line', { x1: ML, x2: ML + PW, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1, 'stroke-dasharray': '3 3' })); });
-
-      function binRangeText(axis, edges, bi) {
-        var label = axis.label.replace(' (로그)', '');
-        var lo = axis.log ? Math.pow(10, edges[bi]) : edges[bi];
-        var hi = axis.log ? Math.pow(10, edges[bi + 1]) : edges[bi + 1];
-        if (bi === 0) return label + ' ' + axis.fmt(hi) + ' 이하';
-        if (bi === 2) return label + ' ' + axis.fmt(lo) + ' 이상';
-        return label + ' ' + axis.fmt(lo) + '~' + axis.fmt(hi);
-      }
-      var top = gapCells[0];
-      clear(gapEl);
-      gapEl.appendChild(document.createTextNode('가장 비어있는 구간: '));
-      gapEl.appendChild(mk('b', { text: binRangeText(xAxis, xEdges, top.xi) + ' · ' + binRangeText(yAxis, yEdges, top.yi) }));
-      gapEl.appendChild(document.createTextNode(' — ' + (minCount === 0 ? '이 구간에는 게임이 없습니다' : ('이 구간에는 게임이 ' + minCount + '개뿐입니다')) + (gapCells.length > 1 ? ' (동률 ' + gapCells.length + '곳 중 대표 예시)' : '') + '.'));
-      gapEl.hidden = false;
-    }
-
-    svg.appendChild(svgEl('rect', { x: ML, y: MT, width: PW, height: PH, fill: 'none', stroke: 'var(--border)', 'stroke-width': 1 }));
-    [xDataMin, (xDataMin + xDataMax) / 2, xDataMax].forEach(function (v) {
-      var lbl = svgEl('text', { x: X(v), y: MT + PH + 18, 'text-anchor': 'middle', class: 'tick-label' });
-      lbl.textContent = xAxis.fmt(xAxis.log ? Math.pow(10, v) : v);
-      svg.appendChild(lbl);
-    });
-    [yDataMin, (yDataMin + yDataMax) / 2, yDataMax].forEach(function (v) {
-      var lbl = svgEl('text', { x: ML - 8, y: Y(v) + 3, 'text-anchor': 'end', class: 'tick-label' });
-      lbl.textContent = yAxis.fmt(yAxis.log ? Math.pow(10, v) : v);
-      svg.appendChild(lbl);
-    });
-    var xTitle = svgEl('text', { x: ML + PW / 2, y: H - 6, 'text-anchor': 'middle', class: 'axis-label' });
-    xTitle.textContent = xAxis.label;
-    svg.appendChild(xTitle);
-    var yTitle = svgEl('text', { x: 14, y: MT + PH / 2, 'text-anchor': 'middle', class: 'axis-label', transform: 'rotate(-90, 14, ' + (MT + PH / 2) + ')' });
-    yTitle.textContent = yAxis.label;
-    svg.appendChild(yTitle);
-
-    var defs = svgEl('defs', {});
-    var clipPath = svgEl('clipPath', { id: 'posIconClip' });
-    clipPath.appendChild(svgEl('circle', { cx: 0, cy: 0, r: 11 }));
-    defs.appendChild(clipPath);
-    svg.appendChild(defs);
-
-    var seenSubGenres = {};
-    pts.forEach(function (r) {
-      var cx = X(rawVal(r, xAxis)), cy = Y(rawVal(r, yAxis));
-      var color = subGenreColor(r.subGenre);
-      seenSubGenres[r.subGenre || '미분류'] = color;
-      var url = playUrl(r.appId);
-      var wrapEl = url ? svgEl('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }) : svgEl('g', {});
-      wrapEl.setAttribute('class', 'pos-point');
-      var g2 = svgEl('g', { transform: 'translate(' + cx.toFixed(1) + ',' + cy.toFixed(1) + ')' });
-      g2.appendChild(svgEl('circle', { cx: 0, cy: 0, r: 14, fill: 'transparent' }));
-      if (r.icon) {
-        g2.appendChild(svgEl('image', { href: r.icon, x: -11, y: -11, width: 22, height: 22, 'clip-path': 'url(#posIconClip)', preserveAspectRatio: 'xMidYMid slice' }));
-        g2.appendChild(svgEl('circle', { cx: 0, cy: 0, r: 11, fill: 'none', stroke: color, 'stroke-width': 2.5 }));
-      } else {
-        g2.appendChild(svgEl('circle', { cx: 0, cy: 0, r: 8, fill: color, stroke: 'var(--surface)', 'stroke-width': 2 }));
-      }
-      wrapEl.appendChild(g2);
-      svg.appendChild(wrapEl);
-
-      function show(evt) {
-        clear(tooltipEl);
-        tooltipEl.appendChild(mk('div', { cls: 'tt-title', text: r.name }));
-        tooltipEl.appendChild(mk('div', { style: { color: 'var(--tooltip-ink-2)', marginBottom: '4px' }, text: r.publisher + (r.subGenre ? ' · ' + r.subGenre : '') }));
-        tooltipEl.appendChild(mk('div', { cls: 'tt-row', children: [document.createTextNode(xAxis.label.replace(' (로그)', '')), mk('span', { cls: 'tt-val', text: xAxis.fmt(dispVal(r, xAxis)) })] }));
-        tooltipEl.appendChild(mk('div', { cls: 'tt-row', children: [document.createTextNode(yAxis.label.replace(' (로그)', '')), mk('span', { cls: 'tt-val', text: yAxis.fmt(dispVal(r, yAxis)) })] }));
-        tooltipEl.hidden = false;
-        var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-        var clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
-        positionTooltip(clientX, clientY);
-      }
-      wrapEl.addEventListener('pointermove', show);
-      wrapEl.addEventListener('pointerenter', show);
-      wrapEl.addEventListener('pointerleave', hideTooltip);
-    });
-
-    SUBGENRE_ORDER.concat(['미분류']).forEach(function (sg) {
-      if (!seenSubGenres[sg]) return;
-      legendEl.appendChild(mk('li', { children: [
-        mk('span', { cls: 'swatch', style: { background: seenSubGenres[sg] } }),
-        document.createTextNode(sg)
-      ]}));
-    });
-  }
-
   function renderSubGenre(g) {
     var section = document.getElementById('subGenreSection');
     var breakdown = g.subGenreBreakdown || [];
@@ -749,6 +543,19 @@
 
   function currentGenre() { return DATA.genres[currentGenreName()]; }
 
+  // ---- 포지셔닝 맵: design-dimension opportunity map (docs/opportunity.js + markets/kr-opp.js) ----
+  var oppMap = null;
+  function renderOpportunity(genreName) {
+    var section = document.getElementById('oppSection');
+    if (!window.OpportunityMap || !window.OPPORTUNITY_DATA) {
+      clear(section);
+      section.appendChild(mk('p', { cls: 'panel-note', text: '포지셔닝 맵 데이터(markets/kr-opp.js)를 불러오지 못했습니다.' }));
+      return;
+    }
+    if (!oppMap) oppMap = window.OpportunityMap.mount(section, { data: window.OPPORTUNITY_DATA, scopeGenre: genreName, allowScopeToggle: true });
+    else oppMap.setScopeGenre(genreName);
+  }
+
   function renderAll() {
     var name = currentGenreName();
     var g = DATA.genres[name];
@@ -759,7 +566,7 @@
     renderKPI(g);
     renderTrend(g);
     renderConcentration(g);
-    renderPositioning(g);
+    renderOpportunity(name);
     renderSubGenre(g);
     renderMoodboard(g);
     renderPublishers(g);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="한국·미국·일본·러시아 4개 플레이스토어 게임 마켓의 순위·장르·퍼블리셔를 비교하는 시장조사 리포트">
+<meta name="description" content="한국·미국·영국·인도·인도네시아·일본·러시아 플레이스토어 게임 마켓의 순위·장르·퍼블리셔를 비교하는 시장조사 리포트">
 <title>해외 게임 마켓 비교</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,6 +88,8 @@
   .mc-no1 .game-link .gl-text { white-space: normal; overflow-wrap: break-word; }
   .mc-no1 .game-icon { width: 32px; height: 32px; border-radius: 9px; margin-top: 0; }
   .market-card .mc-note { font-size: 11.5px; color: var(--ink-muted); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 2px; }
+  .market-card .mc-report { font-size: 12.5px; font-weight: 600; text-decoration: none; margin-top: auto; padding-top: 4px; }
+  .market-card .mc-report:hover { text-decoration: underline; }
 
   .market-rows { display: flex; flex-direction: column; gap: 18px; }
   .market-row { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 14px; }
@@ -134,6 +136,8 @@
   footer { border-top: 1px solid var(--border); padding-block: 20px 40px; color: var(--ink-muted); font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; }
   footer code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
   [hidden] { display: none !important; }
+  .nav-row { flex-wrap: wrap; }
+  .nav-markets .nav-label { font-size: 12px; font-weight: 600; color: var(--ink-muted); margin-right: 2px; }
 </style>
 </head>
 <body>
@@ -144,8 +148,17 @@
       <a href="genre.html">🎮 장르별 분석</a>
       <a href="global.html" class="active">🌐 해외 마켓 비교</a>
     </nav>
+    <nav class="nav-row nav-markets" aria-label="마켓별 리포트">
+      <span class="nav-label">마켓별 리포트</span>
+      <a href="market.html?m=us">🇺🇸 미국</a>
+      <a href="market.html?m=ru">🇷🇺 러시아</a>
+      <a href="market.html?m=in">🇮🇳 인도</a>
+      <a href="market.html?m=id">🇮🇩 인도네시아</a>
+      <a href="market.html?m=gb">🇬🇧 영국</a>
+      <a href="market.html?m=jp">🇯🇵 일본</a>
+    </nav>
     <h1 class="title">해외 게임 마켓 비교</h1>
-    <p class="lede">한국·미국·일본·러시아 4개 플레이스토어의 오늘자 게임 순위를 같은 기준으로 나란히 비교합니다. 러시아는 Google Play 결제가 중단되어 있어 매출 대신 인기 무료 순위를 사용합니다.</p>
+    <p class="lede">한국과 해외 플레이스토어의 오늘자 게임 순위를 같은 기준으로 나란히 비교합니다. 러시아는 Google Play 결제가 중단되어 있어 매출 대신 인기 무료 순위를 사용합니다. 마켓별 상세 분석은 위의 마켓별 리포트에서 볼 수 있습니다.</p>
     <div class="meta-row" id="metaRow"></div>
   </header>
 
@@ -205,8 +218,7 @@
     </section>
 
     <footer>
-      <div>수집: <code>google-play-scraper</code> · 한국/미국/일본은 <code>GROSSING</code>(매출), 러시아는 <code>TOP_FREE</code>(인기 무료) 컬렉션의 게임 카테고리 상위 100위. 매일 1회 수집하며 <code>server/analyze-intl.js</code>가 이 페이지의 <code>docs/global-data.js</code>를 재생성합니다.</div>
-      <div>해외 마켓은 수집을 막 시작해 오늘 하루치 스냅샷만 있습니다 — 데이터가 쌓이면 이 페이지에도 순위 추이 그래프가 추가될 수 있습니다.</div>
+      <div>수집: <code>google-play-scraper</code> · 러시아를 제외한 마켓은 <code>GROSSING</code>(매출), 러시아는 <code>TOP_FREE</code>(인기 무료) 컬렉션의 게임 카테고리 상위 100위. 매일 1회 수집하며 <code>server/analyze-intl.js</code>가 이 페이지의 <code>docs/global-data.js</code>와 마켓별 리포트 데이터(<code>docs/markets/</code>)를 재생성합니다.</div>
       <div id="footerGenerated"></div>
     </footer>
   </main>
@@ -279,7 +291,8 @@
         mk('div', { cls: 'mc-no1-label', text: '오늘의 1위' }),
         mk('div', { cls: 'mc-no1', children: top1 ? [gameNameEl(top1.name, top1.icon, top1.appId)] : [document.createTextNode('–')] }),
         mk('div', { cls: 'mc-sub', text: top1 ? (top1.publisher + ' · ' + top1.genre) : '' }),
-        m.note ? mk('div', { cls: 'mc-note', text: m.note }) : null
+        m.note ? mk('div', { cls: 'mc-note', text: m.note }) : null,
+        mk('a', { cls: 'mc-report', attrs: { href: m.code === 'kr' ? 'index.html' : ('market.html?m=' + m.code) }, text: m.label + ' 상세 리포트 →' })
       ]}));
     });
   })();
