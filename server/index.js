@@ -45,13 +45,77 @@ function classifySubGenre(title, summary, description) {
   return '';
 }
 
+// GitHub Actions turns `::warning::` / `::error::` stdout lines into run annotations.
+function ciNote(level, msg) {
+  if (process.env.GITHUB_ACTIONS === 'true') console.log(`::${level}::${msg}`);
+  else (level === 'error' ? console.error : console.warn)(`[${level}] ${msg}`);
+}
+
+const LIST_ATTEMPTS = 3;
+const DETAIL_ATTEMPTS = 2;
+const DETAIL_CONCURRENCY = 8;
+// More fallbacks than this means the store itself is misbehaving -- fail the
+// market rather than save a chart that is mostly missing its details.
+const MAX_FALLBACK_SHARE = 0.2;
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+async function withRetry(label, attempts, fn) {
+  let lastErr;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < attempts) {
+        console.warn(`  ${label}: attempt ${i} failed (${err.message}), retrying`);
+        await sleep(3000 * i);
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// Fetches the chart, then each game's detail page on its own. The library's
+// fullDetail mode loads all 100 detail pages with Promise.all, so one listing
+// it can't parse used to throw away the whole market (GB/IN/RU on 2026-10-02).
+// Here a game whose detail page keeps failing keeps its chart entry (title,
+// developer, icon, score) and the rest of the market is saved as usual.
+async function fetchChart(collection, category, country, lang) {
+  const params = { collection, num: 100, country, lang };
+  if (category) params.category = category;
+  const entries = await withRetry('chart list', LIST_ATTEMPTS, () => gplay.list(params));
+  if (!entries.length) throw new Error('chart came back empty');
+
+  const details = new Array(entries.length);
+  const fallbacks = [];
+  let next = 0;
+  async function worker() {
+    while (next < entries.length) {
+      const i = next++;
+      const entry = entries[i];
+      try {
+        details[i] = await withRetry(entry.appId, DETAIL_ATTEMPTS, () => gplay.app({ appId: entry.appId, country, lang }));
+      } catch (err) {
+        details[i] = entry;
+        fallbacks.push(`#${i + 1} ${entry.title} (${entry.appId}): ${err.message}`);
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: DETAIL_CONCURRENCY }, worker));
+
+  if (fallbacks.length > entries.length * MAX_FALLBACK_SHARE) {
+    throw new Error(`detail pages failed for ${fallbacks.length}/${entries.length} games, e.g. ${fallbacks[0]}`);
+  }
+  fallbacks.forEach(f => ciNote('warning', `[${country}] detail page unavailable, saved chart entry only: ${f}`));
+  return details;
+}
+
 async function scrapeRankings(collection, category, opts) {
   opts = opts || {};
   const country = opts.country || 'kr';
   const lang = opts.lang || 'ko';
-  const params = { collection, num: 100, country, lang, fullDetail: true };
-  if (category) params.category = category;
-  const apps = await gplay.list(params);
+  const apps = await fetchChart(collection, category, country, lang);
   const label = category ? '게임' : '일반';
   return apps.map((app, index) => ({
     rank: index + 1,
@@ -305,21 +369,35 @@ if (args.includes('--ci')) {
 } else if (args.includes('--ci-games-excel')) {
   (async () => {
     console.log('[CI] Auto scrape games Excel started');
-    await saveExcel(gplay.collection.GROSSING, gplay.category.GAME, '게임');
+    try {
+      await saveExcel(gplay.collection.GROSSING, gplay.category.GAME, '게임');
+    } catch (err) {
+      ciNote('error', `대한민국 (kr) scrape failed: ${err.message}`);
+      process.exit(1);
+    }
     console.log('[CI] Done');
     process.exit(0);
   })();
 } else if (args.includes('--ci-intl')) {
   (async () => {
     console.log('[CI] Auto scrape international markets started');
+    // One market failing must not stop the others from being saved, but it
+    // must not look like success either: the exit code tells the workflow,
+    // which still commits the markets that worked and then fails the run.
+    const failed = [];
     for (const market of INTL_MARKETS) {
       try {
         await saveExcelIntl(market);
       } catch (err) {
-        console.error(`[CI] ${market.label} (${market.code}) failed:`, err.message);
+        failed.push(market);
+        ciNote('error', `${market.label} (${market.code}) scrape failed: ${err.message}`);
       }
     }
-    console.log('[CI] Done');
+    if (failed.length) {
+      console.log(`[CI] Done with failures: ${failed.map(m => m.code).join(', ')} not collected today (${INTL_MARKETS.length - failed.length}/${INTL_MARKETS.length} saved)`);
+      process.exit(1);
+    }
+    console.log(`[CI] Done: all ${INTL_MARKETS.length} markets saved`);
     process.exit(0);
   })();
 } else if (args.includes('--serve')) {

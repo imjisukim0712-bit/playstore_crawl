@@ -5,6 +5,7 @@
   "main": "index.js",
   "bin": "index.js",
   "scripts": {
+    "postinstall": "node scripts/patch-google-play-scraper.js",
     "start": "node index.js",
     "dev": "node index.js",
     "build": "pkg . --targets node18-win-x64 --output ../playstore-server.exe"

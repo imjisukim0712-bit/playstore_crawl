@@ -88,6 +88,7 @@
   .mc-no1 .game-link .gl-text { white-space: normal; overflow-wrap: break-word; }
   .mc-no1 .game-icon { width: 32px; height: 32px; border-radius: 9px; margin-top: 0; }
   .market-card .mc-note { font-size: 11.5px; color: var(--ink-muted); border-top: 1px solid var(--border); padding-top: 8px; margin-top: 2px; }
+  .market-card .mc-stale { word-break: keep-all; font-size: 12px; font-weight: 600; color: var(--critical); background: var(--surface-2); border: 1px solid var(--critical); border-radius: 8px; padding: 5px 9px; }
   .market-card .mc-report { font-size: 12.5px; font-weight: 600; text-decoration: none; margin-top: auto; padding-top: 4px; }
   .market-card .mc-report:hover { text-decoration: underline; }
 
@@ -291,15 +292,19 @@
 
   (function renderMarketCards() {
     var grid = document.getElementById('marketGrid');
+    // A market whose newest snapshot is behind the others failed its last scrape.
+    var newestDate = DATA.markets.reduce(function (max, m) { return m.date > max ? m.date : max; }, '');
     DATA.markets.forEach(function (m) {
       var top1 = m.top[0];
+      var stale = m.date && m.date < newestDate;
       grid.appendChild(mk('div', { cls: 'market-card', children: [
         mk('div', { cls: 'mc-head', children: [
           mk('span', { cls: 'flag', text: m.flag }),
           mk('span', { cls: 'mc-name', text: m.label }),
           mk('span', { cls: 'mc-metric', text: m.metricLabel })
         ]}),
-        mk('div', { cls: 'mc-no1-label', text: '오늘의 1위' }),
+        stale ? mk('div', { cls: 'mc-stale', text: '⚠ 최근 수집 실패 — ' + fmtFull(m.date) + ' 데이터입니다' }) : null,
+        mk('div', { cls: 'mc-no1-label', text: stale ? (fmtFull(m.date) + ' 1위') : '오늘의 1위' }),
         mk('div', { cls: 'mc-no1', children: top1 ? [gameNameEl(top1.name, top1.icon, top1.appId)] : [document.createTextNode('–')] }),
         mk('div', { cls: 'mc-sub', text: top1 ? (top1.publisher + ' · ' + top1.genre) : '' }),
         m.note ? mk('div', { cls: 'mc-note', text: m.note }) : null,

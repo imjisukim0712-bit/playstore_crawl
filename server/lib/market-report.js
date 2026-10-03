@@ -265,7 +265,7 @@ function buildMarket(market, dir, skipNames) {
 
   const report = {
     generatedAt: new Date().toISOString(),
-    market: { code: market.code, label: market.label, flag: market.flag, country: market.country || market.code, metric: market.metric, metricLabel: market.metricLabel, note: market.note || null },
+    market: { code: market.code, label: market.label, flag: market.flag, country: market.country || market.code, metric: market.metric, metricLabel: market.metricLabel, note: market.note || null, newestMarketDate: market.newestMarketDate || null },
     meta: {
       firstDate: dates[0],
       lastDate: dates[latestIdx],

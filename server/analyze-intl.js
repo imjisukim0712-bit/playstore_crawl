@@ -87,6 +87,15 @@ const marketData = MARKETS.map(market => {
 });
 
 const available = marketData.filter(m => m.latest.length > 0);
+
+// A market whose newest snapshot is older than the others' failed to scrape
+// on its last run -- say so in the Actions log; the pages flag it too (from `date`).
+const newestDate = available.reduce((max, m) => (m.latestDate > max ? m.latestDate : max), '');
+available.filter(m => m.latestDate < newestDate).forEach(m => {
+  const msg = `${m.label} (${m.code}) data is stale: latest snapshot ${m.latestDate}, other markets ${newestDate}`;
+  console.log(process.env.GITHUB_ACTIONS === 'true' ? `::warning::${msg}` : `[warning] ${msg}`);
+});
+
 if (available.length === 0) {
   console.error('No international/KR snapshots found -- run the scrapers first.');
   process.exit(1);
@@ -182,7 +191,7 @@ console.log(`Wrote ${outPath} (${(fs.statSync(outPath).size / 1024).toFixed(1)} 
 // KR is excluded: its report is index.html (analyze.js), which also writes kr-opp.js.
 const marketsDir = path.join(docsDir, 'markets');
 MARKETS.filter(m => m.code !== 'kr').forEach(m => {
-  const built = buildMarket({ ...m, country: m.code }, m.dir);
+  const built = buildMarket({ ...m, country: m.code, newestMarketDate: newestDate }, m.dir);
   if (!built) { console.log(`  ${m.code}: no snapshots yet, report skipped`); return; }
   const reportSize = writeWindowVar(path.join(marketsDir, `${m.code}.js`), 'MARKET_DATA', built.report);
   const oppSize = writeWindowVar(path.join(marketsDir, `${m.code}-opp.js`), 'OPPORTUNITY_DATA', built.opportunity);

@@ -16,12 +16,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      # postinstall applies server/scripts/patch-google-play-scraper.js (null-safety fixes)
       - run: npm install
-        working-directory: ./server
-      - name: Patch google-play-scraper bugs
-        run: |
-          sed -i 's/searchArray === null || searchArray.length === 0/searchArray === null || searchArray === undefined || searchArray.length === 0/' node_modules/google-play-scraper/lib/utils/mappingHelpers.js
-          sed -i "s/description\.replace(\/<br>\/g, '\\\\r\\\\n')/(description || '').replace(\/<br>\/g, '\\\\r\\\\n')/" node_modules/google-play-scraper/lib/utils/mappingHelpers.js
         working-directory: ./server
       - run: node index.js --ci-games-excel
         working-directory: ./server

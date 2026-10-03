@@ -280,6 +280,7 @@
   .nav-row { flex-wrap: wrap; }
   .nav-markets { font-size: 12.5px; }
   .nav-markets .nav-back { border-style: dashed; }
+  .market-note.is-stale { border-color: var(--critical); color: var(--ink); font-weight: 600; }
   .market-note { max-width: 80ch; margin: 4px 0 0; padding: 10px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); font-size: 13px; color: var(--ink-2); }
 </style>
 </head>
@@ -555,10 +556,15 @@
       });
       var notes = [];
       if (MK.note) notes.push(MK.note);
+      // Behind the newest market = this market's last scrape failed (same rule as global.html).
+      var newest = MK.newestMarketDate;
+      var stale = newest && m.lastDate < newest;
+      if (stale) notes.unshift('⚠ 최근 수집이 실패해 이 리포트는 ' + fmtFull(m.lastDate) + ' 데이터에 머물러 있습니다 (다른 마켓은 ' + fmtFull(newest) + '까지 수집됨). 다음 수집이 성공하면 자동으로 최신화됩니다.');
       if (m.totalDays < 7) notes.push('수집 ' + m.totalDays + '일째입니다 — 전일 대비 변동, 순위 추이, 꾸준함 리포트는 데이터가 며칠 쌓이면 채워집니다.');
       if (notes.length) {
         var noteEl = document.getElementById('marketNote');
         noteEl.textContent = notes.join(' ');
+        noteEl.classList.toggle('is-stale', !!stale);
         noteEl.hidden = false;
       }
       document.getElementById('footerSource').textContent = '수집: google-play-scraper · 국가 ' + MK.country + ' · 컬렉션 ' + MK.metric + ' (' + MK.metricLabel + ') · 게임 카테고리 상위 ' + m.topN + '위. 매일 1회 스냅샷을 저장하며(server/output/intl/' + MK.code + '/), server/analyze-intl.js가 이 리포트의 데이터(docs/markets/' + MK.code + '.js)를 다시 생성합니다.';

@@ -16,14 +16,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      # postinstall applies server/scripts/patch-google-play-scraper.js (null-safety fixes)
       - run: npm install
         working-directory: ./server
-      - name: Patch google-play-scraper bugs
-        run: |
-          sed -i 's/searchArray === null || searchArray.length === 0/searchArray === null || searchArray === undefined || searchArray.length === 0/' node_modules/google-play-scraper/lib/utils/mappingHelpers.js
-          sed -i "s/description\.replace(\/<br>\/g, '\\\\r\\\\n')/(description || '').replace(\/<br>\/g, '\\\\r\\\\n')/" node_modules/google-play-scraper/lib/utils/mappingHelpers.js
-        working-directory: ./server
-      - run: node index.js --ci-intl
+      # Exits non-zero if any market failed. continue-on-error lets the markets
+      # that did succeed still be analyzed and committed; the last step then
+      # fails the run so a partial scrape never shows up as a green check.
+      - name: Scrape all markets
+        id: scrape
+        continue-on-error: true
+        run: node index.js --ci-intl
         working-directory: ./server
       - name: Rebuild global comparison + per-market reports
         run: node analyze-intl.js
@@ -33,3 +35,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add server/output/intl/ docs/global-data.js docs/markets/
           git diff --quiet --staged || (git commit -m "Auto scrape intl markets $(date '+%Y-%m-%d %H:%M')" && git pull --rebase --autostash && git push)
+      - name: Fail the run if any market was not collected
+        if: steps.scrape.outcome == 'failure'
+        run: |
+          echo "::error::One or more markets were not collected today -- see the 'Scrape all markets' step. Markets that succeeded were still committed."
+          exit 1
