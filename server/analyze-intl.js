@@ -88,10 +88,13 @@ const marketData = MARKETS.map(market => {
 
 const available = marketData.filter(m => m.latest.length > 0);
 
-// A market whose newest snapshot is older than the others' failed to scrape
-// on its last run -- say so in the Actions log; the pages flag it too (from `date`).
-const newestDate = available.reduce((max, m) => (m.latestDate > max ? m.latestDate : max), '');
-available.filter(m => m.latestDate < newestDate).forEach(m => {
+// An international market whose newest snapshot is older than the others'
+// failed to scrape on its last run -- say so in the Actions log; the pages flag
+// it too (from `date`). KR is left out: it is scraped by its own workflow at a
+// different time of day (and that workflow fails loudly on its own).
+const intlAvailable = available.filter(m => m.code !== 'kr');
+const newestDate = intlAvailable.reduce((max, m) => (m.latestDate > max ? m.latestDate : max), '');
+intlAvailable.filter(m => m.latestDate < newestDate).forEach(m => {
   const msg = `${m.label} (${m.code}) data is stale: latest snapshot ${m.latestDate}, other markets ${newestDate}`;
   console.log(process.env.GITHUB_ACTIONS === 'true' ? `::warning::${msg}` : `[warning] ${msg}`);
 });

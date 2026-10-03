@@ -292,11 +292,12 @@
 
   (function renderMarketCards() {
     var grid = document.getElementById('marketGrid');
-    // A market whose newest snapshot is behind the others failed its last scrape.
-    var newestDate = DATA.markets.reduce(function (max, m) { return m.date > max ? m.date : max; }, '');
+    // An international market whose newest snapshot is behind the others failed its
+    // last scrape. KR runs on its own schedule, so it isn't compared.
+    var newestDate = DATA.markets.reduce(function (max, m) { return m.code !== 'kr' && m.date > max ? m.date : max; }, '');
     DATA.markets.forEach(function (m) {
       var top1 = m.top[0];
-      var stale = m.date && m.date < newestDate;
+      var stale = m.code !== 'kr' && m.date && m.date < newestDate;
       grid.appendChild(mk('div', { cls: 'market-card', children: [
         mk('div', { cls: 'mc-head', children: [
           mk('span', { cls: 'flag', text: m.flag }),
